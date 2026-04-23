@@ -1,0 +1,66 @@
+{% extends 'base_teacher.html' %}
+{% load static %}
+{% block title %}Teacher Profile - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Teacher Profile{% endblock %}
+{% block page_subtitle %}Your account and teaching assignment details are shown here.{% endblock %}
+{% block content %}
+<section class="card profile-card" style="grid-template-columns: 160px 1fr;">
+    <img src="{% if teacher.photo %}{{ teacher.photo.url }}{% else %}{% static 'images/default_profile.svg' %}{% endif %}" alt="Teacher Photo" class="profile-photo">
+    <div>
+        <h2>{{ teacher.full_name }}</h2>
+        <p><strong>Employee ID:</strong> {{ teacher.employee_id }}</p>
+        <p><strong>Status:</strong> <span class="status-pill">{{ teacher.status }}</span></p>
+    </div>
+</section>
+
+<section class="card table-card">
+    <div class="card-title">
+        <h3>Contact Details</h3>
+        <a href="{% url 'account_details' %}" class="small-btn">Edit Profile</a>
+    </div>
+    <table>
+        <tbody>
+            <tr><td><strong>Email</strong></td><td>{{ teacher.user.email }}</td></tr>
+            <tr><td><strong>Birthdate</strong></td><td>{{ teacher.birthdate|date:"M d, Y" }}</td></tr>
+            <tr><td><strong>Gender</strong></td><td>{{ teacher.gender }}</td></tr>
+            <tr><td><strong>Phone</strong></td><td>{{ teacher.contact_number }}</td></tr>
+            <tr><td><strong>Address</strong></td><td>{{ teacher.address }}</td></tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="card table-card">
+    <div class="card-title">
+        <h3>Teaching Assignments (Current Year)</h3>
+        <a href="{% url 'teacher_schedule' %}" class="small-btn">View Schedule</a>
+    </div>
+    {% if teaching_assignments %}
+    <table>
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Grade Level</th>
+                <th>Section</th>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Room</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in teaching_assignments %}
+            <tr>
+                <td>{{ assignment.subject.name }}</td>
+                <td>{{ assignment.subject.grade_level.name }}</td>
+                <td>{{ assignment.section.name }}</td>
+                <td>{{ assignment.get_day_display }}</td>
+                <td>{{ assignment.time_display }}</td>
+                <td>{{ assignment.room }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="info-empty">No teaching assignments have been assigned yet.</div>
+    {% endif %}
+</section>
+{% endblock %}

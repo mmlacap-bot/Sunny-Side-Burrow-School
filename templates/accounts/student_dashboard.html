@@ -1,0 +1,108 @@
+{% extends 'base_student.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Student Dashboard{% endblock %}
+{% block page_subtitle %}Welcome back, {{ student.first_name }}. Here is a summary of your enrollment and class schedule.{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <section class="card profile-card">
+        <div style="text-align: center;">
+            <img src="{% if student.photo %}{{ student.photo.url }}{% else %}{% static 'images/default_profile.svg' %}{% endif %}" alt="Student Photo" class="profile-photo">
+            
+            <form method="post" enctype="multipart/form-data" style="margin-top: 1rem;">
+                {% csrf_token %}
+                <div style="font-size: 0.8rem; margin-bottom: 0.5rem;">
+                    {{ photo_form.photo }}
+                    {% if photo_form.photo.errors %}
+                        <div style="color: #b00020; margin-top: 0.2rem;">{{ photo_form.photo.errors }}</div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="small-btn">Save photo</button>
+            </form>
+            
+            {% if student.photo %}
+            <form method="post" style="margin-top: 0.5rem;">
+                {% csrf_token %}
+                <button type="submit" name="remove_photo" value="1" class="small-btn" style="background:#f9f9f9; border-color:#ddd;">Remove photo</button>
+            </form>
+            {% endif %}
+        </div>
+        
+        <div>
+            <h2>{{ student.first_name }} {{ student.last_name }}</h2>
+            <p><strong>Student ID:</strong> {{ student.student_id }}</p>
+            <p><strong>Grade:</strong> {% if enrollment %}{{ enrollment.grade_level.name }}{% else %}Not Enrolled{% endif %}</p>
+            <p><strong>Section:</strong> {% if enrollment %}{{ enrollment.section.name }}{% else %}Not Enrolled{% endif %}</p>
+            <p><strong>School Year:</strong> {% if enrollment %}{{ enrollment.school_year.year_start }}-{{ enrollment.school_year.year_end }}{% else %}Not Enrolled{% endif %}</p>
+            <p style="margin-top: 0.5rem;">
+                <strong>Enrollment Status:</strong> 
+                {% if enrollment %}
+                    <span class="status-pill {{ enrollment.status|lower }}">{{ enrollment.status }}</span>
+                {% else %}
+                    <span class="status-pill pending">Pending</span>
+                {% endif %}
+            </p>
+            
+            {% if not enrollment %}
+            <div class="actions-grid" style="margin-top: 1.5rem;">
+                <a href="{% url 'student_enrollment' %}" class="action-panel">Proceed to Enrollment</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+{% if enrollment %}
+<div class="dashboard-grid" style="margin-top: 1.5rem; grid-template-columns: 1fr;">
+    <section class="card stat-card" style="display: flex; justify-content: space-around; background: linear-gradient(135deg, #FFF8F5, #FFF);">
+        <div style="text-align: center;">
+            <span style="font-size: 1.5rem; display: block; color: #CC0000; font-weight: 700;">₱{{ enrollment.tuition_fee }}</span>
+            <div style="font-size: 0.85rem; color: #666; font-weight: 600;">Tuition Fee</div>
+        </div>
+        <div style="text-align: center;">
+            <span style="font-size: 1.5rem; display: block; color: #14773B; font-weight: 700;">₱{{ enrollment.total_paid }}</span>
+            <div style="font-size: 0.85rem; color: #666; font-weight: 600;">Total Paid</div>
+        </div>
+        <div style="text-align: center;">
+            <span style="font-size: 1.5rem; display: block; color: #E65100; font-weight: 700;">₱{{ enrollment.balance }}</span>
+            <div style="font-size: 0.85rem; color: #666; font-weight: 600;">Current Balance</div>
+        </div>
+    </section>
+</div>
+
+<section class="card table-card">
+    <div class="card-title">
+        <h3>Enrolled Subjects</h3>
+        <a href="{% url 'student_schedule' %}" class="small-btn">Full Schedule</a>
+    </div>
+    {% if subjects %}
+    <table>
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Section</th>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Room</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject in subjects %}
+            <tr>
+                <td>{{ subject.class_schedule.subject.name }}</td>
+                <td>{{ subject.class_schedule.section.name }}</td>
+                <td>{{ subject.class_schedule.get_day_display }}</td>
+                <td>{{ subject.class_schedule.time_start }} - {{ subject.class_schedule.time_end }}</td>
+                <td>{{ subject.class_schedule.room }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="info-empty">No enrolled subjects found yet.</div>
+    {% endif %}
+</section>
+{% endif %}
+{% endblock %}

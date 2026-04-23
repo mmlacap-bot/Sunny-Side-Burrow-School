@@ -1,0 +1,79 @@
+{% extends 'base_student.html' %}
+{% load static %}
+
+{% block title %}People - Sunny Side Burrow School{% endblock %}
+{% block page_title %}People{% endblock %}
+{% block page_subtitle %}See classmates in your section and your assigned adviser.{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid" style="grid-template-columns: 1fr 1.4fr;">
+    <section class="card">
+        <div class="card-title">
+            <h3>Your Section</h3>
+        </div>
+        {% if section %}
+            <p style="margin-bottom: 0.75rem;">
+                <strong>{{ section.grade_level.name }}</strong> — {{ section.name }}
+                <br/>
+                <span style="color:#666;">School Year: {{ section.school_year }}</span>
+            </p>
+            <div style="background:#FBF0EF; padding:1rem; border-radius:14px; border:1px solid rgba(204,0,0,0.12);">
+                <div style="font-weight:700; color:#A12A2A; margin-bottom:0.4rem;">Adviser</div>
+                {% if adviser %}
+                    <div style="font-weight:700;">{{ adviser.full_name }}</div>
+                    <div style="color:#555; font-size:0.92rem;">Teacher (Adviser)</div>
+                {% else %}
+                    <div style="color:#666;">No adviser assigned yet.</div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="info-empty">
+                You don’t have an active section yet. Once you’re enrolled and assigned to a section, your classmates and adviser will appear here.
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="card table-card">
+        <div class="card-title">
+            <h3>Classmates</h3>
+        </div>
+        {% if section %}
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Student ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for mate in classmates %}
+                            <tr>
+                                <td>
+                                    <strong>
+                                        {{ mate.full_name }}
+                                        {% if mate.id == student.id %}
+                                            <span style="color:#CC0000;">(You)</span>
+                                        {% endif %}
+                                    </strong>
+                                </td>
+                                <td>{{ mate.student_id }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="2" class="info-empty" style="text-align:center;">No classmates found for this section.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:0.85rem; color:#666; font-size:0.9rem;">
+                Only students enrolled in <strong>{{ section.name }}</strong> are shown.
+            </div>
+        {% else %}
+            <div class="info-empty">No classmates to show.</div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
+

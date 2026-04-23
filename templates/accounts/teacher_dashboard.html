@@ -1,0 +1,65 @@
+{% extends 'base_teacher.html' %}
+{% load static %}
+{% block title %}Teacher Dashboard - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Teacher Dashboard{% endblock %}
+{% block page_subtitle %}Welcome back, {{ teacher.full_name }}. Review your schedule, sections, and support tools in one place.{% endblock %}
+{% block content %}
+<div class="dashboard-grid">
+    <section class="card profile-card">
+        <img src="{% if teacher.photo %}{{ teacher.photo.url }}{% else %}{% static 'images/default_profile.svg' %}{% endif %}" alt="Teacher Photo" class="profile-photo">
+        <div>
+            <h2>{{ teacher.full_name }}</h2>
+            <p><strong>Employee ID:</strong> {{ teacher.employee_id }}</p>
+            <p><strong>Status:</strong> <span class="status-pill">{{ teacher.status }}</span></p>
+            <div class="actions-grid" style="margin-top: 1.5rem;">
+                <a href="{% url 'teacher_schedule' %}" class="action-panel" style="padding: 1rem; text-align: center; font-size: 0.9rem;">View Schedule</a>
+                <a href="{% url 'teacher_sections' %}" class="action-panel" style="padding: 1rem; text-align: center; font-size: 0.9rem;">Review Sections</a>
+                <a href="{% url 'teacher_applications' %}" class="action-panel" style="padding: 1rem; text-align: center; font-size: 0.9rem;">Applications</a>
+                <a href="{% url 'teacher_inbox' %}" class="action-panel" style="padding: 1rem; text-align: center; font-size: 0.9rem;">Inbox</a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<section class="card table-card">
+    <div class="card-title">
+        <h3>Upcoming Classes</h3>
+        <a href="{% url 'teacher_schedule' %}" class="small-btn">Full Schedule</a>
+    </div>
+    {% if schedules %}
+    <table>
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Subject</th>
+                <th>Section</th>
+                <th>Room</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for schedule in schedules|slice:":5" %}
+            <tr>
+                <td>{{ schedule.get_day_display }}</td>
+                <td>{{ schedule.time_start }} - {{ schedule.time_end }}</td>
+                <td>{{ schedule.subject.name }}</td>
+                <td>{{ schedule.section.name }}</td>
+                <td>{{ schedule.room }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="info-empty">No scheduled classes found for the current academic year.</div>
+    {% endif %}
+</section>
+
+<section class="card action-panel">
+    <h4>Need help?</h4>
+    <p>Visit AI Assistance for teaching guidance, open the Inbox to reply to student messages, or check your profile.</p>
+    <div style="display:flex; flex-wrap:wrap; gap:0.75rem; margin-top:1rem;">
+        <a href="{% url 'teacher_ai_assistance' %}" class="small-btn">AI Assistance</a>
+        <a href="{% url 'teacher_profile' %}" class="small-btn">My Profile</a>
+    </div>
+</section>
+{% endblock %}

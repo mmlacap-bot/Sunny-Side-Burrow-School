@@ -1,0 +1,66 @@
+{% extends 'base_student.html' %}
+{% block title %}Student Schedule - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Student Schedule{% endblock %}
+{% block page_subtitle %}Your weekly class schedule.{% endblock %}
+
+{% block content %}
+<section class="card table-card">
+    <div class="card-title">
+        <h3>Class Schedule</h3>
+        {% if enrollment %}
+            <span class="status-pill enrolled" style="font-size: 0.8rem; margin-left: 1rem;">Section: {{ enrollment.section.name }}</span>
+        {% endif %}
+    </div>
+    
+    {% if not enrollment %}
+        <div style="padding: 3rem; text-align: center; background: #fff; border-radius: 8px;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🗓️</div>
+            <h3 style="color: #CC0000; margin-bottom: 0.5rem;">Schedule Not Available</h3>
+            <p style="color: #666; max-width: 500px; margin: 0 auto;">Your schedule will be visible here once your enrollment is fully confirmed and your status is marked as <strong>Enrolled</strong>.</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #888;">(Payment verification may be required)</p>
+        </div>
+    {% else %}
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 100px;">Time</th>
+                        {% for day in days %}
+                        <th>{{ day.1 }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for time_slot in time_slots %}
+                    <tr>
+                        <td style="background: #fdfdfd; font-weight: 600; color: #CC0000;">{{ time_slot }}</td>
+                        {% for day in days %}
+                        <td style="height: 80px; vertical-align: top; background: rgba(0,0,0,0.01);">
+                            {% for schedule in schedules %}
+                                {% if schedule.day == day.0 or schedule.day == 'MWF' and day.0 in 'Mon,Wed,Fri' or schedule.day == 'TTH' and day.0 in 'Tue,Thu' or schedule.day == 'Dly' %}
+                                    {% if schedule.time_start|date:"H:i" <= time_slot and schedule.time_end|date:"H:i" > time_slot %}
+                                        <div style="background: rgba(204,0,0,0.08); padding: 0.75rem; border-radius: 8px; border-left: 4px solid #CC0000; margin-bottom: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                                            <strong style="color: #CC0000; display: block; font-size: 0.85rem; line-height: 1.2; margin-bottom: 0.3rem;">{{ schedule.subject.name }}</strong>
+                                            <div style="font-size: 0.7rem; color: #555; display: flex; justify-content: space-between;">
+                                                <span>📍 {{ schedule.room }}</span>
+                                                <span>⏰ {{ time_slot }}</span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding: 1rem; background: #fff8f5; border-radius: 8px; border: 1px dashed #CC0000; font-size: 0.85rem; color: #666;">
+            <strong>Note:</strong> If you see gaps in your schedule, please contact the registrar for section assignment. 
+            Schedules are subject to change during the first week of classes.
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

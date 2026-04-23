@@ -1,0 +1,383 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Registration | Sunny Side Burrow School</title>
+    
+    <style>
+        /* --- Formal Design System: Matching Login Page Image --- */
+        :root {
+            --primary-red: #8B0000;    /* Deep Burgundy from 'LOG IN' button */
+            --dark-red: #5F0000;
+            --bg-warm: #FDF5E6;       /* Warm cream background from login page */
+            --input-bg: #E8F0FE;      /* Light blue input tint from login page */
+            --text-main: #1A1C1E;
+            --text-muted: #5E6368;
+            --border-color: #DADCE0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background-color: white;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Left Side: Hero Area (Preserved) --- */
+        .brand-section {
+            flex: 1.1;
+            position: relative;
+            background-color: #1a1a1a;
+            display: flex;
+            align-items: flex-end;
+            padding: 60px;
+            overflow: hidden;
+        }
+
+        .brand-section img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.6;
+        }
+
+        .brand-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%);
+            z-index: 1;
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            max-width: 500px;
+        }
+
+        .brand-tag {
+            background: var(--primary-red);
+            color: white;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+
+        .brand-content h1 {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        /* --- Right Side: Registration Area (Updated Texture) --- */
+        .form-section {
+            flex: 0.9;
+            padding: 40px 60px;
+            background: var(--bg-warm); /* The cream background */
+            overflow-y: auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 560px;
+            margin: 0 auto;
+            background: white; 
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .form-header {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary-red);
+            margin-bottom: 8px;
+        }
+
+        .form-header p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* --- Tabs --- */
+        .role-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .role-tab {
+            padding: 8px 24px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+
+        .role-tab.active {
+            background: var(--primary-red);
+            color: white;
+            border-color: var(--primary-red);
+        }
+
+        /* --- Form Grid & Inputs --- */
+        .registration-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .span-full { grid-column: span 2; }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .input-group input, 
+        .input-group select,
+        .input-group textarea {
+            padding: 10px 14px;
+            background-color: var(--input-bg); /* Blue tint from image */
+            border: 1px solid #D1D9E6;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .section-divider {
+            grid-column: span 2;
+            margin: 15px 0 5px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--primary-red);
+            letter-spacing: 0.5px;
+        }
+
+        /* --- Buttons --- */
+        .btn-submit {
+            grid-column: span 2;
+            background: var(--primary-red);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit:hover { background: var(--dark-red); }
+
+        .footer-link {
+            grid-column: span 2;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .footer-link a {
+            color: var(--primary-red);
+            text-decoration: none;
+        }
+
+        .hidden { display: none; }
+
+        @media (max-width: 1024px) {
+            .brand-section { display: none; }
+            .form-section { flex: 1; padding: 20px; background: var(--bg-warm); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="brand-section">
+            <img src="{% static 'images/school_building.png' %}" alt="School Campus">
+            <div class="brand-overlay"></div>
+            <div class="brand-content">
+                <span class="brand-tag">Academic Portal</span>
+                <h1>Sunny Side<br>Burrow School</h1>
+                <p style="font-size: 1.1rem; opacity: 0.9; margin-top: 10px;">Institutional Online Enrollment System</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Create Account</h2>
+                    <p>Credentials will be sent to your email after registration.</p>
+                </div>
+
+                <div class="role-tabs">
+                    <button type="button" class="role-tab active" id="tab-student" onclick="setRole('student')">Student</button>
+                    <button type="button" class="role-tab" id="tab-teacher" onclick="setRole('teacher')">Teacher</button>
+                </div>
+
+                <form class="registration-grid" action="{% url 'register' %}" method="post" autocomplete="off">
+                    {% csrf_token %}
+                    <input type="hidden" name="role" id="role-input" value="{{ selected_role|default:'student' }}">
+
+                    {% if form.errors %}
+                    <div class="span-full" style="color: #c62828; font-size: 0.8rem; background: #ffebee; padding: 10px; border-radius: 4px; margin-bottom: 10px;">
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}<div>{{ field|capfirst }}: {{ error }}</div>{% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="section-divider">Account Information</div>
+                    
+                    <div class="input-group span-full">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" value="{{ form.email.value|default:'' }}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+
+                    <div class="section-divider">Personal Details</div>
+
+                    <div class="input-group">
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" value="{{ form.first_name.value|default:'' }}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" value="{{ form.last_name.value|default:'' }}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="middle_name">Middle Name</label>
+                        <input type="text" id="middle_name" name="middle_name" value="{{ form.middle_name.value|default:'' }}">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="contact_number">Phone Number</label>
+                        <input type="text" id="contact_number" name="contact_number" value="{{ form.contact_number.value|default:'' }}" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" name="gender" required>
+                            <option value="" {% if form.gender.value == '' %}selected{% endif %}>Select...</option>
+                            <option value="Male" {% if form.gender.value == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if form.gender.value == 'Female' %}selected{% endif %}>Female</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="birthdate">Date of Birth</label>
+                        <input type="date" id="birthdate" name="birthdate" value="{{ form.birthdate.value|default:'' }}" required>
+                    </div>
+
+                    <div id="student-fields" class="registration-grid span-full">
+                        <div class="section-divider">Student Record</div>
+                        <div class="input-group span-full">
+                            <label for="address">Permanent Address</label>
+                            <textarea id="address" name="address" rows="2">{{ form.address.value|default:'' }}</textarea>
+                        </div>
+                        <div class="input-group">
+                            <label for="guardian_name">Guardian Name</label>
+                            <input type="text" id="guardian_name" name="guardian_name" value="{{ form.guardian_name.value|default:'' }}">
+                        </div>
+                        <div class="input-group">
+                            <label for="guardian_contact">Emergency Contact</label>
+                            <input type="text" id="guardian_contact" name="guardian_contact" value="{{ form.guardian_contact.value|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div id="teacher-fields" class="registration-grid span-full hidden">
+                        <div class="section-divider">Faculty Record</div>
+                        <div class="input-group">
+                            <label for="employee_id">Employee ID</label>
+                            <input type="text" id="employee_id" name="employee_id" value="{{ form.employee_id.value|default:'' }}">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">REGISTER ACCOUNT</button>
+
+                    <div class="footer-link">
+                        Already have an account? <a href="{% url 'home' %}">Login to Portal</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setRole(role) {
+            document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + role).classList.add('active');
+            document.getElementById('role-input').value = role;
+            
+            if (role === 'student') {
+                document.getElementById('student-fields').classList.remove('hidden');
+                document.getElementById('teacher-fields').classList.add('hidden');
+            } else {
+                document.getElementById('student-fields').classList.add('hidden');
+                document.getElementById('teacher-fields').classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectedRole = '{{ selected_role|default:"student" }}';
+            setRole(selectedRole);
+        });
+    </script>
+</body>
+</html>

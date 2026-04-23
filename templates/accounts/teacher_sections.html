@@ -1,0 +1,76 @@
+{% extends 'base_teacher.html' %}
+{% block title %}Teacher Sections - Sunny Side Burrow School{% endblock %}
+{% block page_title %}My Sections{% endblock %}
+{% block page_subtitle %}Overview of your assigned sections for the current academic year.{% endblock %}
+{% block content %}
+<section class="card table-card">
+    <div class="card-title">
+        <h3>Assigned Sections</h3>
+        <a href="{% url 'teacher_dashboard' %}" class="small-btn">Back to Dashboard</a>
+    </div>
+    {% if sections %}
+        <div style="display: grid; gap: 2rem; grid-template-columns: 1fr;">
+            {% for section in sections %}
+            <div class="card" style="background: #fff; border: 1px solid rgba(204,0,0,0.1); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); overflow: hidden; padding: 0;">
+                <div style="background: #CC0000; color: #fff; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h4 style="margin: 0; font-size: 1.2rem; font-weight: 700;">Section {{ section.name }}</h4>
+                        <span style="font-size: 0.85rem; opacity: 0.9;">{{ section.grade_level.name }} • {{ section.school_year.name }}</span>
+                    </div>
+                    {% if section.teacher == teacher %}
+                    <span style="background: #fff; color: #CC0000; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Adviser</span>
+                    {% endif %}
+                </div>
+                
+                <div style="padding: 1.5rem; display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                    <!-- Subjects List -->
+                    <div>
+                        <h5 style="color: #CC0000; margin-top: 0; margin-bottom: 1rem; border-bottom: 2px solid #FAF0EE; padding-bottom: 0.5rem;"><i class="fas fa-book"></i> Assigned Subjects</h5>
+                        {% if section.subject_list %}
+                            <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem;">
+                                {% for schedule in section.subject_list %}
+                                <li style="background: #FAF0EE; padding: 0.6rem 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid {% if schedule.teacher == teacher %}#CC0000{% else %}#ccc{% endif %};">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 0.9rem; color: #333;">{{ schedule.subject.name }}</div>
+                                        <div style="font-size: 0.75rem; color: #666;">{{ schedule.day }} {{ schedule.time_start|time:"g:i A" }} - {{ schedule.time_end|time:"g:i A" }}</div>
+                                    </div>
+                                    <div style="font-size: 0.75rem; font-weight: 600; color: {% if schedule.teacher == teacher %}#CC0000{% else %}#777{% endif %}; text-align: right;">
+                                        {{ schedule.teacher.first_name|default:"Unassigned" }} {{ schedule.teacher.last_name|default:"" }}
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p style="color: #777; font-size: 0.85rem; font-style: italic;">No subjects assigned.</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Students List -->
+                    <div>
+                        <h5 style="color: #333; margin-top: 0; margin-bottom: 1rem; border-bottom: 2px solid #eee; padding-bottom: 0.5rem;"><i class="fas fa-users"></i> Enrolled Students ({{ section.student_list|length }})</h5>
+                        {% if section.student_list %}
+                            <div style="max-height: 300px; overflow-y: auto; padding-right: 0.5rem;">
+                                <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 0.4rem;">
+                                    {% for enrollment in section.student_list %}
+                                    <li style="border: 1px solid #eee; padding: 0.5rem 0.8rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                                        <div style="font-weight: 500; font-size: 0.85rem; color: #333;">{{ enrollment.student.full_name }}</div>
+                                        <span class="status-pill {{ enrollment.status|lower }}" style="font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 12px; background: {% if enrollment.status == 'Paid' %}#E8F5E9{% elif enrollment.status == 'Enrolled' %}#E3F2FD{% else %}#FFF3E0{% endif %}; color: {% if enrollment.status == 'Paid' %}#2E7D32{% elif enrollment.status == 'Enrolled' %}#1565C0{% else %}#E65100{% endif %};">
+                                            {{ enrollment.status }}
+                                        </span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% else %}
+                            <p style="color: #777; font-size: 0.85rem; font-style: italic;">No students enrolled yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="info-empty">No section assignments found for the current year.</div>
+    {% endif %}
+</section>
+{% endblock %}

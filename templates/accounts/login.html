@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sunny Side Burrow School</title>
+    <link rel="stylesheet" href="{% static 'css/account.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="image-section">
+            <img src="{% static 'images/school_building.png' %}" alt="School Building">
+        </div>
+
+        <div class="form-section">
+            <h1 class="school-name">SUNNY SIDE<br>BURROW SCHOOL</h1>
+            
+            {% if error %}
+            <div style="color: red; text-align: center;">{{ error }}</div>
+            {% endif %}
+
+            <form class="register-grid" action="{% url 'home' %}" style="grid-template-columns: 1fr; max-width: 400px;" method="post">
+                {% csrf_token %}
+                <div class="input-box">
+                    <input type="email" name="login_email" required>
+                    <label>Login Email</label>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" name="password" required>
+                    <label>Password</label>
+
+                <div class="button-container">
+                    <button type="submit" class="btn-register" style="width: 100%;">LOG IN</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

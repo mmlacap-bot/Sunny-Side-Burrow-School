@@ -1,0 +1,24 @@
+{% extends 'base_teacher.html' %}
+{% block title %}AI Assistance - Sunny Side Burrow School{% endblock %}
+{% block page_title %}AI Assistance{% endblock %}
+{% block page_subtitle %}Ask the assistant for help, suggestions, or guidance on teaching and student support.{% endblock %}
+{% block content %}
+<section class="card">
+    <div class="card-title">
+        <h3>AI Assistance</h3>
+        <a href="{% url 'teacher_dashboard' %}" class="small-btn">Back to Dashboard</a>
+    </div>
+    <p class="info-empty">Use this page to get quick suggestions during planning, scheduling, or student support. This assistant is a helper for common tasks.</p>
+    <form method="post" style="margin-top:1.5rem; display:grid; gap:1rem;">
+        {% csrf_token %}
+        <textarea name="question" rows="5" placeholder="Ask about classroom planning, assignments, schedules, or student support." required style="width:100%; border:1px solid #e5e5e5; border-radius:14px; padding:1rem; font-size:1rem; resize:vertical;">{{ question|default:'' }}</textarea>
+        <button type="submit" class="action-panel" style="width:160px; justify-content:center;">Ask the assistant</button>
+    </form>
+    {% if ai_response %}
+    <section class="card" style="margin-top:1.5rem;">
+        <h4>Suggested Response</h4>
+        <p style="margin-top:0.75rem; line-height:1.75; color:#444;">{{ ai_response }}</p>
+    </section>
+    {% endif %}
+</section>
+{% endblock %}

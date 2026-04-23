@@ -1,0 +1,281 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sunny Side Burrow School - Login</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        :root {
+            --primary-red: #8b0000;
+            --panel-bg: #fff8f2;
+            --text-dark: #222222;
+            --muted: #666666;
+            --border: #e4dbd5;
+            --radius: 18px;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: 'Inter', 'Poppins', sans-serif;
+            background: #f5f1eb;
+            color: var(--text-dark);
+        }
+        .login-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+        }
+        .hero-panel {
+            position: relative;
+            background: url('{% static "images/school_building.png" %}') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .hero-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+        }
+        .hero-content {
+            position: relative;
+            max-width: 460px;
+            text-align: center;
+            color: #ffffff;
+        }
+        .hero-title {
+            margin: 0;
+            font-size: clamp(2.6rem, 4vw, 4.2rem);
+            line-height: 1.02;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+        .hero-tagline {
+            margin-top: 24px;
+            font-size: 1rem;
+            line-height: 1.9;
+            color: rgba(255,255,255,0.9);
+        }
+        .login-panel {
+            background: var(--panel-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 460px;
+        }
+        .brand-top {
+            margin-bottom: 32px;
+        }
+        .brand-name {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary-red);
+            letter-spacing: -0.02em;
+        }
+        .brand-subtitle {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .login-card form {
+            background: #ffffff;
+            border: 1px solid #ede3db;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+            padding: 34px 32px;
+        }
+        .form-heading {
+            margin: 0 0 24px;
+            font-size: 1.55rem;
+            font-weight: 700;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            font-size: 1rem;
+            color: var(--text-dark);
+            background: #fff;
+        }
+        .form-group input::placeholder {
+            color: #a39c96;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 4px rgba(139,0,0,0.08);
+        }
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+        .action-row label {
+            margin: 0;
+            font-weight: 600;
+        }
+        .forgot-link {
+            color: var(--primary-red);
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-primary,
+        .btn-outline {
+            width: 100%;
+            border-radius: 14px;
+            padding: 15px 18px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .btn-primary {
+            background: var(--primary-red);
+            color: #ffffff;
+            border-color: var(--primary-red);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-red);
+            border-color: var(--primary-red);
+        }
+        .divider-wrap {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin: 24px 0 16px;
+        }
+        .divider-wrap::before,
+        .divider-wrap::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e7dfd8;
+            margin: 0 16px;
+        }
+        .login-hint {
+            margin-top: 16px;
+            color: #7d7d7d;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        @media (max-width: 900px) {
+            .login-container {
+                grid-template-columns: 1fr;
+            }
+            .hero-panel,
+            .login-panel {
+                padding: 28px 20px;
+            }
+            .login-card form {
+                padding: 24px;
+            }
+        }
+        @media (max-width: 620px) {
+            .hero-panel {
+                min-height: 280px;
+            }
+            .hero-title {
+                font-size: 2.4rem;
+            }
+            .action-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .forgot-link {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <section class="hero-panel">
+            <div class="hero-content">
+                <h1 class="hero-title">Sunny Side Burrow School</h1>
+                <p class="hero-tagline">Empowering Education, One Enrollment at a Time</p>
+            </div>
+        </section>
+
+        <section class="login-panel">
+            <div class="login-card">
+                <div class="brand-top">
+                    <p class="brand-name">Sunny Side Burrow</p>
+                    <p class="brand-subtitle">Portal Login</p>
+                </div>
+                <form method="POST" action="{% url 'home' %}">
+                    {% csrf_token %}
+
+                    {% if error %}
+                        <div style="color:#b00020; text-align:center; margin-bottom:20px; font-weight:700;">{{ error }}</div>
+                    {% endif %}
+                    {% if messages %}
+                        <div style="margin-bottom:20px;">
+                            {% for message in messages %}
+                                <div style="color:#205522; text-align:center; font-weight:600;">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select id="role" name="role" required>
+                            <option value="student" {% if form.role.value == 'student' %}selected{% endif %}>Student</option>
+                            <option value="teacher" {% if form.role.value == 'teacher' %}selected{% endif %}>Teacher</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="{{ form.email.value|default:'' }}" placeholder="Enter your login email" required autocomplete="username">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="action-row">
+                            <label for="password">Password</label>
+                            <a href="{% url 'forgot_password' %}" class="forgot-link">Forgot Password?</a>
+                        </div>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                    </div>
+
+                    <button type="submit" class="btn-primary">LOG IN</button>
+
+                    <div class="divider-wrap">Don't have an account?</div>
+                    <button type="button" class="btn-outline" onclick="location.href='{% url 'register' %}'">REGISTER</button>
+
+                    <p class="login-hint">Use your portal email and password to sign in. If you need help, contact administration.</p>
+                </form>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

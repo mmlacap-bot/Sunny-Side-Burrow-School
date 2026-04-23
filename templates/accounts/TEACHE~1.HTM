@@ -1,0 +1,61 @@
+{% extends 'base_teacher.html' %}
+
+{% block title %}Adviser & Subjects - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Adviser & Subjects{% endblock %}
+{% block page_subtitle %}Select the section you handle as Adviser and choose subjects based on your background.{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid" style="grid-template-columns: 1fr 1.2fr;">
+    <section class="card">
+        <div class="card-title">
+            <h3>Current Adviser Assignment</h3>
+            <a href="{% url 'teacher_dashboard' %}" class="small-btn">Back to Dashboard</a>
+        </div>
+        {% if current_adviser_section %}
+            <p style="margin-bottom: 0.6rem;">
+                <strong>{{ current_adviser_section.grade_level.name }}</strong> — {{ current_adviser_section.name }}
+                <br/>
+                <span style="color:#666;">School Year: {{ current_adviser_section.school_year }}</span>
+            </p>
+            <div style="color:#555;">You are currently set as the adviser for this section.</div>
+        {% else %}
+            <div class="info-empty">No adviser section selected yet.</div>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <div class="card-title">
+            <h3>Update Adviser & Subjects</h3>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="info-empty" style="border-left:3px solid #b00020; color:#b00020;">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                {{ form.adviser_section.label_tag }}
+                {{ form.adviser_section }}
+                {% if form.adviser_section.errors %}
+                    <div style="color:#b00020; font-size:0.85rem; margin-top:0.25rem;">{{ form.adviser_section.errors|join:", " }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.subjects.label }}</label>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.5rem; padding: 0.6rem; border:1px solid #ccc; border-radius: 12px;">
+                    {{ form.subjects }}
+                </div>
+                {% if form.subjects.errors %}
+                    <div style="color:#b00020; font-size:0.85rem; margin-top:0.25rem;">{{ form.subjects.errors|join:", " }}</div>
+                {% endif %}
+                <div style="color:#666; font-size:0.9rem; margin-top:0.35rem;">Minimum: 2 subjects.</div>
+            </div>
+
+            <button type="submit" class="btn-form">Save</button>
+        </form>
+    </section>
+</div>
+{% endblock %}
+

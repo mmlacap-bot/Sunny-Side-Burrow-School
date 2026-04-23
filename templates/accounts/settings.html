@@ -1,0 +1,270 @@
+{% extends base_template %}
+{% load static %}
+
+{% block title %}Account Settings - Sunny Side Burrow School{% endblock %}
+
+{% block page_title %}Security Settings{% endblock %}
+{% block page_subtitle %}Manage your password, registered email, and multi-factor authentication preferences.{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Header/Navigation -->
+    <div class="settings-tabs">
+        <button class="tab-btn active" onclick="showSection(this, 'password')">Change Password</button>
+        <button class="tab-btn" onclick="showSection(this, 'email')">Update Email</button>
+        <button class="tab-btn" onclick="showSection(this, 'mfa')">MFA Settings</button>
+    </div>
+
+    <!-- Password Section -->
+    <section id="section-password" class="settings-section card">
+        <div class="card-title">
+            <h3>Change Password</h3>
+            <p class="subtitle">Ensure your account is using a long, random password to stay secure.</p>
+        </div>
+        <form method="post" action="{% url 'settings' %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="password">
+            <div class="form-grid">
+                {% for field in password_form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<small class="error-text">{{ field.errors.0 }}</small>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="save-btn">Update Password</button>
+        </form>
+    </section>
+
+    <!-- Email Section -->
+    <section id="section-email" class="settings-section card" style="display:none;">
+        <div class="card-title">
+            <h3>Update Registered Email</h3>
+            <p class="subtitle">This email is used for account notifications and security verification (OTPs).</p>
+        </div>
+        <form method="post" action="{% url 'settings' %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="email">
+            <div class="form-group">
+                <label for="{{ email_form.email.id_for_label }}">Registered Email Address</label>
+                {{ email_form.email }}
+                {% if email_form.email.errors %}<small class="error-text">{{ email_form.email.errors.0 }}</small>{% endif %}
+            </div>
+            <p class="info-note">Current: <strong>{{ request.user.email }}</strong></p>
+            <button type="submit" class="save-btn">Save Changes</button>
+        </form>
+    </section>
+
+    <!-- MFA Section -->
+    <section id="section-mfa" class="settings-section card" style="display:none;">
+        <div class="card-title">
+            <h3>Multi-Factor Authentication</h3>
+            <p class="subtitle">Add an extra layer of security to your account.</p>
+        </div>
+        <form method="post" id="mfaForm" action="{% url 'settings' %}">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="mfa">
+            
+            <div class="mfa-options">
+                {% for radio in mfa_form.mfa_type %}
+                <label class="mfa-option">
+                    {{ radio.tag }}
+                    <span class="mfa-content">
+                        <strong>{{ radio.choice_label }}</strong>
+                        {% if radio.data.value == 'NONE' %}
+                        <span class="desc">Only use your password to log in.</span>
+                        {% elif radio.data.value == 'OTP' %}
+                        <span class="desc">Receive a 6-digit code via email every time you log in.</span>
+                        {% elif radio.data.value == 'QUESTION' %}
+                        <span class="desc">Answer two security questions during login.</span>
+                        {% endif %}
+                    </span>
+                </label>
+                {% endfor %}
+            </div>
+
+            <div id="questions-config" class="questions-panel" style="display:none; margin-top:2rem;">
+                <h4>Configure Security Questions</h4>
+                <p style="margin-bottom: 1.5rem; color: #666; font-size: 0.95rem; line-height: 1.6;">
+                    Please provide <strong>8 unique security questions</strong> and their answers. 
+                    During login, the system will randomly select <strong>one</strong> of these to verify your identity.
+                </p>
+                <div class="form-grid">
+                    {% for i in "12345678"|make_list %}
+                    <div class="form-group">
+                        <label>Security Question {{ i }}</label>
+                        {% if i == '1' %}{{ mfa_form.question_1 }}{% elif i == '2' %}{{ mfa_form.question_2 }}{% elif i == '3' %}{{ mfa_form.question_3 }}{% elif i == '4' %}{{ mfa_form.question_4 }}{% elif i == '5' %}{{ mfa_form.question_5 }}{% elif i == '6' %}{{ mfa_form.question_6 }}{% elif i == '7' %}{{ mfa_form.question_7 }}{% elif i == '8' %}{{ mfa_form.question_8 }}{% endif %}
+                        {% if i == '1' %}{{ mfa_form.question_1.errors }}{% elif i == '2' %}{{ mfa_form.question_2.errors }}{% elif i == '3' %}{{ mfa_form.question_3.errors }}{% elif i == '4' %}{{ mfa_form.question_4.errors }}{% elif i == '5' %}{{ mfa_form.question_5.errors }}{% elif i == '6' %}{{ mfa_form.question_6.errors }}{% elif i == '7' %}{{ mfa_form.question_7.errors }}{% elif i == '8' %}{{ mfa_form.question_8.errors }}{% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label>Answer {{ i }}</label>
+                        {% if i == '1' %}{{ mfa_form.answer_1 }}{% elif i == '2' %}{{ mfa_form.answer_2 }}{% elif i == '3' %}{{ mfa_form.answer_3 }}{% elif i == '4' %}{{ mfa_form.answer_4 }}{% elif i == '5' %}{{ mfa_form.answer_5 }}{% elif i == '6' %}{{ mfa_form.answer_6 }}{% elif i == '7' %}{{ mfa_form.answer_7 }}{% elif i == '8' %}{{ mfa_form.answer_8 }}{% endif %}
+                        {% if i == '1' %}{{ mfa_form.answer_1.errors }}{% elif i == '2' %}{{ mfa_form.answer_2.errors }}{% elif i == '3' %}{{ mfa_form.answer_3.errors }}{% elif i == '4' %}{{ mfa_form.answer_4.errors }}{% elif i == '5' %}{{ mfa_form.answer_5.errors }}{% elif i == '6' %}{{ mfa_form.answer_6.errors }}{% elif i == '7' %}{{ mfa_form.answer_7.errors }}{% elif i == '8' %}{{ mfa_form.answer_8.errors }}{% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="save-btn" style="margin-top:2rem;">Save MFA Preferences</button>
+        </form>
+    </section>
+</div>
+
+<style>
+    .settings-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .settings-tabs {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e5e5e5;
+        padding-bottom: 0.5rem;
+    }
+    .tab-btn {
+        background: none;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        color: #666;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.2s;
+    }
+    .tab-btn:hover {
+        background: #f8f9fa;
+        color: #8B0000;
+    }
+    .tab-btn.active {
+        color: #8B0000;
+        border-bottom: 3px solid #8B0000;
+        background: #fff;
+    }
+    .settings-section {
+        padding: 2rem;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .subtitle {
+        color: #666;
+        font-size: 0.95rem;
+        margin-top: 0.25rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+    }
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+    }
+    .form-group input, .form-group select {
+        padding: 0.85rem;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        font-size: 1rem;
+    }
+    .save-btn {
+        background: #8B0000;
+        color: white;
+        border: none;
+        padding: 0.85rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .save-btn:hover {
+        transform: scale(1.02);
+        background: #a00000;
+    }
+    .mfa-options {
+        display: grid;
+        gap: 1rem;
+    }
+    .mfa-option {
+        display: flex;
+        gap: 1rem;
+        padding: 1.25rem;
+        border: 2px solid #f0f0f0;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+    .mfa-option:has(input:checked) {
+        border-color: #8B0000;
+        background: #fff8f8;
+    }
+    .mfa-content {
+        display: flex;
+        flex-direction: column;
+    }
+    .mfa-content strong {
+        font-size: 1.1rem;
+        color: #333;
+    }
+    .mfa-content .desc {
+        font-size: 0.9rem;
+        color: #666;
+    }
+    .info-note {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+    .questions-panel {
+        background: #fcfcfc;
+        padding: 1.5rem;
+        border-radius: 16px;
+        border: 1px dashed #ddd;
+    }
+    .questions-panel h4 {
+        margin-bottom: 1rem;
+        color: #8B0000;
+    }
+    .error-text {
+        color: #d32f2f;
+        font-size: 0.85rem;
+    }
+</style>
+
+<script>
+    function showSection(btn, id) {
+        // Toggle tabs
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Toggle sections
+        document.querySelectorAll('.settings-section').forEach(sec => sec.style.display = 'none');
+        document.getElementById('section-' + id).style.display = 'block';
+    }
+
+    // MFA logic
+    const mfaRadios = document.querySelectorAll('input[name="mfa_type"]');
+    const questionsPanel = document.getElementById('questions-config');
+
+    function updateMFAPanel() {
+        const selected = document.querySelector('input[name="mfa_type"]:checked').value;
+        questionsPanel.style.display = (selected === 'QUESTION') ? 'block' : 'none';
+    }
+
+    mfaRadios.forEach(radio => radio.addEventListener('change', updateMFAPanel));
+    
+    // Set initial state
+    updateMFAPanel();
+</script>
+{% endblock %}
