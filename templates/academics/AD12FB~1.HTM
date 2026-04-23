@@ -1,0 +1,29 @@
+{% extends 'base_admin.html' %}
+{% block title %}Schedule - Admin Portal{% endblock %}
+{% block content %}
+<h2>Class Schedules</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Section</th>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Room</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for schedule in schedules %}
+            <tr>
+                <td>{{ schedule.subject.name }}</td>
+                <td>{{ schedule.section.name }}</td>
+                <td>{{ schedule.get_day_display }}</td>
+                <td>{{ schedule.time_start }} - {{ schedule.time_end }}</td>
+                <td>{{ schedule.room }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

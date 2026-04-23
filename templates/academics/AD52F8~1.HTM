@@ -1,0 +1,27 @@
+{% extends 'base_admin.html' %}
+{% block title %}Sections - Admin Portal{% endblock %}
+{% block content %}
+<h2>Sections</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Grade</th>
+                <th>Max Students</th>
+                <th>School Year</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for section in sections %}
+            <tr>
+                <td>{{ section.name }}</td>
+                <td>{{ section.grade_level.name }}</td>
+                <td>{{ section.max_students }}</td>
+                <td>{{ section.school_year.year_start }}-{{ section.school_year.year_end }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base_admin.html' %}
+{% block title %}School Year - Admin Portal{% endblock %}
+{% block content %}
+<h2>School Years</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Year</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for year in school_years %}
+            <tr>
+                <td>{{ year.year_start }}-{{ year.year_end }}</td>
+                <td>{{ year.is_active|yesno:"Yes,No" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

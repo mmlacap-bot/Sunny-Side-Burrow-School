@@ -1,0 +1,134 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}Manage Section - Sunny Side Burrow School{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>{% if section %}Edit Section{% else %}Create New Section{% endif %}</h2>
+    
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}<div class="error">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Section</button>
+                <a href="{% url 'admin_portal_sections' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    {% if section %}
+    <div class="info-box">
+        <h3>Current Information</h3>
+        <p><strong>Name:</strong> {{ section.name }}</p>
+        <p><strong>Grade Level:</strong> {{ section.grade_level.name }}</p>
+        <p><strong>Max Students:</strong> {{ section.max_students }}</p>
+        <p><strong>Current Enrollment:</strong> {{ section.current_enrollment_count }}/{{ section.max_students }}</p>
+        <p><strong>Available Slots:</strong> {{ section.available_slots }}</p>
+        <p><strong>School Year:</strong> {{ section.school_year.year_start }}-{{ section.school_year.year_end }}</p>
+        <p><strong>Teacher:</strong> {% if section.teacher %}{{ section.teacher.full_name }}{% else %}Not Assigned{% endif %}</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #666;
+        color: white;
+    }
+
+    .info-box {
+        background: #e7f3ff;
+        border-left: 4px solid #007bff;
+        padding: 20px;
+        border-radius: 4px;
+    }
+
+    .info-box h3 {
+        margin-top: 0;
+    }
+
+    .error {
+        color: #b00020;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+{% endblock %}

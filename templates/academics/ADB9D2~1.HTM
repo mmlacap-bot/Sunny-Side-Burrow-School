@@ -1,0 +1,27 @@
+{% extends 'base_admin.html' %}
+{% block title %}Subjects - Admin Portal{% endblock %}
+{% block content %}
+<h2>Subjects</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Grade</th>
+                <th>Units</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject in subjects %}
+            <tr>
+                <td>{{ subject.name }}</td>
+                <td>{{ subject.code }}</td>
+                <td>{{ subject.grade_level.name }}</td>
+                <td>{{ subject.units }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
