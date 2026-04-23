@@ -1,0 +1,154 @@
+[
+  {
+    "model": "accounts.user",
+    "pk": 1,
+    "fields": {
+      "username": "student1",
+      "first_name": "John",
+      "last_name": "Doe",
+      "email": "student1@example.com",
+      "password": "pbkdf2_sha256$1200000$FpbN0KRnOon00Mk5l7C4eC$gP/PT/PEg0Gs21J1pQqSOUw9W6O9N4Kl0pGkiBYt2SU=",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2026-03-17T00:00:00Z"
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 2,
+    "fields": {
+      "username": "admin1",
+      "first_name": "Admin",
+      "last_name": "User",
+      "email": "admin@example.com",
+      "password": "pbkdf2_sha256$1200000$xwhZAPZFi8mQD2wcew8CM7$p+IKUZ00gL06MuKFNNEM2hyZuTp36uiuJJ2Y8VqSAtw=",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2026-03-17T00:00:00Z"
+    }
+  },
+  {
+    "model": "academics.schoolyear",
+    "pk": 1,
+    "fields": {
+      "year_start": 2026,
+      "year_end": 2027,
+      "is_active": true
+    }
+  },
+  {
+    "model": "academics.gradelevel",
+    "pk": 1,
+    "fields": {
+      "name": "Kindergarten",
+      "level_order": 0
+    }
+  },
+  {
+    "model": "academics.gradelevel",
+    "pk": 2,
+    "fields": {
+      "name": "Grade 1",
+      "level_order": 1
+    }
+  },
+  {
+    "model": "academics.gradelevel",
+    "pk": 3,
+    "fields": {
+      "name": "Grade 2",
+      "level_order": 2
+    }
+  },
+  {
+    "model": "academics.gradelevel",
+    "pk": 4,
+    "fields": {
+      "name": "Grade 3",
+      "level_order": 3
+    }
+  },
+  {
+    "model": "academics.gradelevel",
+    "pk": 5,
+    "fields": {
+      "name": "Grade 4",
+      "level_order": 4
+    }
+  },
+  {
+    "model": "academics.gradelevel",
+    "pk": 6,
+    "fields": {
+      "name": "Grade 5",
+      "level_order": 5
+    }
+  },
+  {
+    "model": "academics.gradelevel",
+    "pk": 7,
+    "fields": {
+      "name": "Grade 6",
+      "level_order": 6
+    }
+  },
+  {
+    "model": "academics.section",
+    "pk": 1,
+    "fields": {
+      "name": "A",
+      "grade_level": 1,
+      "max_students": 30,
+      "school_year": 1
+    }
+  },
+  {
+    "model": "academics.section",
+    "pk": 2,
+    "fields": {
+      "name": "B",
+      "grade_level": 1,
+      "max_students": 30,
+      "school_year": 1
+    }
+  },
+  {
+    "model": "academics.subject",
+    "pk": 1,
+    "fields": {
+      "name": "Mathematics",
+      "code": "MATHK",
+      "grade_level": 1,
+      "units": 1.0
+    }
+  },
+  {
+    "model": "academics.subject",
+    "pk": 2,
+    "fields": {
+      "name": "Science",
+      "code": "SCIE K",
+      "grade_level": 1,
+      "units": 1.0
+    }
+  },
+  {
+    "model": "student.student",
+    "pk": 1,
+    "fields": {
+      "student_id": "2026001",
+      "first_name": "John",
+      "last_name": "Doe",
+      "middle_name": "",
+      "birthdate": "2010-01-01",
+      "gender": "Male",
+      "address": "123 Main St",
+      "contact_number": "1234567890",
+      "guardian_name": "Jane Doe",
+      "guardian_contact": "0987654321",
+      "photo": "",
+      "user": 1
+    }
+  }
+]
+
