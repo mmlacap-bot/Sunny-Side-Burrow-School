@@ -1,0 +1,347 @@
+{% extends 'base_student.html' %}
+{% block title %}Student Payment - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Payment History{% endblock %}
+{% block page_subtitle %}Review your payment summary and submit proof of payment.{% endblock %}
+
+{% block content %}
+<style>
+    /* Specific overrides for payment methods */
+    .method-selector { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .method-btn { flex: 1; padding: 0.85rem; border: 1px solid #CC0000; background: transparent; color: #CC0000; border-radius: 999px; font-weight: 600; cursor: pointer; transition: 0.2s ease; text-align: center; }
+    .method-btn input[type="radio"] { display: none; }
+    .method-btn.active { background: #CC0000; color: white; }
+
+    .scan-status {
+        margin-top: 10px;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        display: none;
+    }
+    .scan-status.loading { background: #e3f2fd; color: #1976d2; display: block; }
+    .scan-status.success { background: #e8f5e9; color: #2e7d32; display: block; }
+    .scan-status.error { background: #ffebee; color: #c62828; display: block; }
+
+    .btn-form:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+</style>
+
+<div class="dashboard-grid" style="grid-template-columns: 1fr;">
+    <section class="card stat-card" style="background: linear-gradient(135deg, #F9F5F0, #FFF);">
+        <div class="card-title">
+            <h3>Payment Summary</h3>
+        </div>
+        {% if enrollment %}
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); text-align: center;">
+            <div>
+                <span style="font-size: 1.5rem;">₱{{ tuition_fee }}</span>
+                <div class="label">Tuition Fee</div>
+            </div>
+            <div>
+                <span style="font-size: 1.5rem; color: #14773B;">₱{{ total_paid }}</span>
+                <div class="label">Total Paid</div>
+            </div>
+            <div>
+                <span style="font-size: 1.5rem; color: #E65100;">₱{{ balance }}</span>
+                <div class="label">Current Balance</div>
+            </div>
+            <div>
+                <span class="status-pill {% if status == 'Paid' %}resolved{% elif status == 'Partial' %}partial{% else %}pending{% endif %}" style="margin-top: 1.5rem;">{{ status }}</span>
+                <div class="label" style="margin-top: 0.5rem;">Status</div>
+            </div>
+        </div>
+        {% else %}
+        <div class="info-empty">No active enrollment record found.</div>
+        {% endif %}
+    </section>
+</div>
+
+<div class="dashboard-grid">
+    <section class="card">
+        <div class="card-title">
+            <h3>Proof of Payment</h3>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="method-selector">
+                <label class="method-btn{% if form.payment_mode.value == 'GCash' or not form.payment_mode.value %} active{% endif %}">
+                    <input type="radio" name="payment_mode" value="GCash" {% if form.payment_mode.value == 'GCash' or not form.payment_mode.value %}checked{% endif %}>
+                    GCash
+                </label>
+                <label class="method-btn{% if form.payment_mode.value == 'Bank' %} active{% endif %}">
+                    <input type="radio" name="payment_mode" value="Bank" {% if form.payment_mode.value == 'Bank' %}checked{% endif %}>
+                    Bank
+                </label>
+            </div>
+            
+            <div class="form-group">
+                <label>Reference / Transaction ID</label>
+                {{ form.reference_number }}
+            </div>
+
+            <div class="form-group">
+                <label>Amount Paid (₱)</label>
+                {{ form.amount }}
+            </div>
+
+            <div class="form-group">
+                <label>Upload proof of payment</label>
+                {{ form.proof_of_payment }}
+            </div>
+
+            <button type="submit" class="btn-form" style="width: 100%;">Proceed</button>
+        </form>
+    </section>
+
+    <section class="card table-card">
+        <div class="card-title">
+            <h3>Transaction History</h3>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Mode</th>
+                        <th>Reference</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.payment_date }}</td>
+                        <td><strong>₱{{ payment.amount }}</strong></td>
+                        <td>{{ payment.payment_mode }}</td>
+                        <td>{{ payment.reference_number }}</td>
+                        <td>{{ payment.remarks }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="info-empty" style="text-align: center;">No payments recorded.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script>
+    const fileInput = document.querySelector('input[type="file"]');
+    const refInput = document.querySelector('input[name="reference_number"]');
+    const amountInput = document.querySelector('input[name="amount"]');
+    const submitBtn = document.querySelector('.btn-form');
+    const form = document.querySelector('form');
+    
+    // Create status element
+    const statusDiv = document.createElement('div');
+    statusDiv.className = 'scan-status';
+    fileInput.parentNode.appendChild(statusDiv);
+
+    let extractedId = null;
+    let extractedAmount = null;
+    let isScanning = false;
+
+    function updateStatusUI(type, message) {
+        statusDiv.className = `scan-status ${type}`;
+        statusDiv.innerHTML = message;
+    }
+
+    function validateMatch() {
+        const manualId = refInput.value.trim().replace(/[^0-9]/g, '');
+        const manualAmount = parseFloat(amountInput.value) || 0;
+        
+        if (!extractedId) {
+            submitBtn.disabled = true;
+            return;
+        }
+
+        const normExtractedId = extractedId.replace(/[^0-9]/g, '');
+        const idMatched = (normExtractedId === manualId);
+        const amountMatched = !extractedAmount || (Math.abs(manualAmount - extractedAmount) < 0.01);
+
+        if (idMatched) {
+            updateStatusUI('success', `✅ Verified! Ref ID: <strong>${extractedId}</strong> matched.`);
+            submitBtn.disabled = false;
+        } else {
+            updateStatusUI('error', `❌ ID Mismatch! Receipt shows <strong>${extractedId}</strong>. Check if ID is correct.`);
+            submitBtn.disabled = true;
+        }
+    }
+
+    // Heavy preprocessing for blurred images
+    async function preprocessImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    const scale = 3; 
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    
+                    ctx.filter = 'grayscale(100%) contrast(250%) brightness(120%)';
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    resolve(canvas.toDataURL('image/jpeg', 1.0));
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    fileInput.addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        isScanning = true;
+        submitBtn.disabled = true;
+        updateStatusUI('loading', '⌛ Scanning... Optimizing for blur. Please wait.');
+
+        try {
+            const processedDataUrl = await preprocessImage(file);
+            const worker = await Tesseract.createWorker('eng');
+            
+            await worker.setParameters({
+                tessedit_char_whitelist: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ -.:₱',
+            });
+
+            const ret = await worker.recognize(processedDataUrl);
+            let text = ret.data.text.toUpperCase();
+            await worker.terminate();
+
+            console.log("Extracted Text:", text);
+
+            const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER", 
+                          "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            
+            function isLikelyDateOrTime(str) {
+                const upper = str.toUpperCase();
+                if (months.some(m => upper.includes(m))) return true;
+                if (/\d{1,4}(?:[-/.\s])\d{1,2}(?:[-/.\s])\d{1,4}/.test(str)) return true;
+                if (/\d{1,2}:\d{2}(?::\d{2})?/.test(upper)) return true;
+                if (/\b(?:202[0-9]|20[0-9]{2})\b/.test(str)) return true;
+                return false;
+            }
+
+            function isPhoneNumber(cleanId) {
+                // Philippine mobile numbers often start with 639 (12 digits), 09 (11 digits), or just 9 (10 digits)
+                return (cleanId.startsWith("639") && cleanId.length === 12) || 
+                       (cleanId.startsWith("09") && cleanId.length === 11) ||
+                       (cleanId.startsWith("9") && cleanId.length === 10);
+            }
+
+            // Flexible label matching for "Ref No", "Ref Code", "Transaction ID", etc.
+            const idPattern = /(?:REF|REFERENCE|TRANS(?:ACTION)?|CODE)\s*[\.\:#-]?\s*(?:NO|ID|CODE|NUM|NUMBER)?\s*[\.\:#-]?\s*([0-9\s-]{8,30})/gi;
+            let candidates = [];
+            
+            let match;
+            while ((match = idPattern.exec(text)) !== null) {
+                let rawMatch = match[1];
+                months.forEach(m => {
+                    const idx = rawMatch.toUpperCase().indexOf(m);
+                    if (idx !== -1) rawMatch = rawMatch.substring(0, idx);
+                });
+
+                const clean = rawMatch.replace(/[^0-9]/g, '');
+                if (clean.length >= 8 && !isPhoneNumber(clean)) {
+                    // High score for any number with a label, regardless of exact length
+                    candidates.push({ id: clean, score: 20 });
+                }
+            }
+
+            // Fallback for unlabeled numbers
+            if (candidates.length === 0) {
+                const allNumPatt = /[0-9\s-]{8,25}/g;
+                const matches = text.match(allNumPatt) || [];
+                matches.forEach(m => {
+                    if (isLikelyDateOrTime(m)) return;
+                    const clean = m.replace(/[^0-9]/g, '');
+                    if (clean.length >= 8 && !isPhoneNumber(clean)) {
+                        let score = 5;
+                        if (clean.length >= 10 && clean.length <= 14) score = 10; // Prime ID length range
+                        candidates.push({ id: clean, score: score });
+                    }
+                });
+            }
+
+            if (candidates.length > 0) {
+                candidates.sort((a, b) => b.score - a.score);
+                extractedId = candidates[0].id;
+                refInput.value = extractedId;
+            }
+
+            // Amount Extraction - Optimized for multi-thousand amounts and varied separators
+            // Matches: 3,500.00, 3.500.00, 3 500.00, or just 3500.00
+            const amountRegex = /(?:SENT|AMOUNT|TOTAL|PHP|P|₱)\s*[:#-]?\s*([\d\s,\.]{4,12}\.\d{2})/i;
+            const amountMatch = text.match(amountRegex);
+            
+            if (amountMatch) {
+                let rawAmount = amountMatch[1].replace(/[\s,]/g, ''); // Remove spaces and commas
+                // If there are multiple periods, only keep the last one
+                const parts = rawAmount.split('.');
+                if (parts.length > 2) {
+                    const decimal = parts.pop();
+                    rawAmount = parts.join('') + '.' + decimal;
+                }
+                extractedAmount = parseFloat(rawAmount);
+                amountInput.value = extractedAmount.toFixed(2);
+            } else {
+                // Final fallback: Look for any number with decimals and pick the largest one (usually the Total)
+                const anyAmountPatt = /\d{1,3}(?:[\s,\.]\d{3})*(?:\.\d{2})/g;
+                const matches = text.match(anyAmountPatt) || [];
+                if (matches.length > 0) {
+                    const validAmounts = matches.map(m => {
+                        let clean = m.replace(/[\s,]/g, '');
+                        const parts = clean.split('.');
+                        if (parts.length > 2) {
+                            const decimal = parts.pop();
+                            clean = parts.join('') + '.' + decimal;
+                        }
+                        return parseFloat(clean);
+                    });
+                    extractedAmount = Math.max(...validAmounts);
+                    amountInput.value = extractedAmount.toFixed(2);
+                }
+            }
+
+            if (extractedId) {
+                validateMatch();
+            } else {
+                updateStatusUI('error', '⚠️ Could not read the ID. Photo might be too blurry or dark.');
+            }
+
+        } catch (err) {
+            console.error(err);
+            updateStatusUI('error', '❌ Error processing image.');
+        } finally {
+            isScanning = false;
+        }
+    });
+
+    // Handle button toggle UI
+    document.querySelectorAll('.method-btn input[type="radio"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            document.querySelectorAll('.method-btn').forEach(function (btn) {
+                btn.classList.remove('active');
+            });
+            if (radio.checked) {
+                radio.closest('.method-btn').classList.add('active');
+            }
+        });
+    });
+
+    refInput.addEventListener('input', validateMatch);
+    amountInput.addEventListener('input', validateMatch);
+</script>
+{% endblock %}

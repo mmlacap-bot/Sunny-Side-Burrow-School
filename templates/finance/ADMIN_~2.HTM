@@ -1,0 +1,29 @@
+{% extends 'base_admin.html' %}
+{% block title %}Payments - Admin Portal{% endblock %}
+{% block content %}
+<h2>Payments</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Mode</th>
+                <th>Reference</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.enrollment.student.first_name }} {{ payment.enrollment.student.last_name }}</td>
+                <td>₱{{ payment.amount }}</td>
+                <td>{{ payment.payment_date }}</td>
+                <td>{{ payment.payment_mode }}</td>
+                <td>{{ payment.reference_number }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

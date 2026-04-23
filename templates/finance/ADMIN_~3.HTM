@@ -1,0 +1,171 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}Process Payment - Sunny Side Burrow School{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Record Payment</h2>
+    
+    <div class="enrollment-info">
+        <h3>Enrollment Information</h3>
+        <table class="info-table">
+            <tr>
+                <td><strong>Student:</strong></td>
+                <td>{{ enrollment.student.full_name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Grade Level:</strong></td>
+                <td>{{ enrollment.grade_level.name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Section:</strong></td>
+                <td>{{ enrollment.section.name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Tuition Fee:</strong></td>
+                <td>₱{{ enrollment.tuition_fee }}</td>
+            </tr>
+            <tr>
+                <td><strong>Total Paid:</strong></td>
+                <td>₱{{ enrollment.total_paid }}</td>
+            </tr>
+            <tr>
+                <td><strong>Balance:</strong></td>
+                <td><strong>₱{{ balance }}</strong></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="payment-form">
+        <h3>Payment Details</h3>
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}<div class="error">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Record Payment</button>
+                <a href="{% url 'admin_portal_payment' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .enrollment-info {
+        background: #e7f3ff;
+        border-left: 4px solid #007bff;
+        padding: 20px;
+        border-radius: 4px;
+        margin-bottom: 30px;
+    }
+
+    .enrollment-info h3 {
+        margin-top: 0;
+        color: #0056b3;
+    }
+
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .info-table tr {
+        border-bottom: 1px solid #ddd;
+    }
+
+    .info-table td {
+        padding: 10px;
+    }
+
+    .info-table td:first-child {
+        width: 40%;
+    }
+
+    .payment-form {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #666;
+        color: white;
+    }
+
+    .error {
+        color: #b00020;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+{% endblock %}

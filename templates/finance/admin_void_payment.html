@@ -1,0 +1,171 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}Void Payment - Sunny Side Burrow School{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Void Payment</h2>
+    
+    <div class="payment-info">
+        <h3>Payment Details</h3>
+        <table class="info-table">
+            <tr>
+                <td><strong>Student:</strong></td>
+                <td>{{ payment.enrollment.student.full_name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Amount:</strong></td>
+                <td>₱{{ payment.amount }}</td>
+            </tr>
+            <tr>
+                <td><strong>Payment Mode:</strong></td>
+                <td>{{ payment.payment_mode }}</td>
+            </tr>
+            <tr>
+                <td><strong>Reference Number:</strong></td>
+                <td>{{ payment.reference_number|default:"N/A" }}</td>
+            </tr>
+            <tr>
+                <td><strong>Payment Date:</strong></td>
+                <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+            </tr>
+            <tr>
+                <td><strong>Status:</strong></td>
+                <td><span class="badge badge-{{ payment.status|lower }}">{{ payment.status }}</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="void-form">
+        <h3>Reason for Voiding</h3>
+        <form method="post">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}<div class="error">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Void Payment</button>
+                <a href="{% url 'admin_portal_payment' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 700px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .payment-info {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .info-table tr {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-table td {
+        padding: 10px;
+    }
+
+    .info-table td:first-child {
+        width: 30%;
+        background: #f8f9fa;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .badge-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-confirmed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .void-form {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: inherit;
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #666;
+        color: white;
+    }
+
+    .error {
+        color: #b00020;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
