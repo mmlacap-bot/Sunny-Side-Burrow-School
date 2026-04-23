@@ -6,11 +6,17 @@ A modern Django-based school enrollment and school web system.
 Key Features
 
 **Role-Based Access Control**: Secure multi-role login and registration for Administrators, Teachers, and Students.
+
 **Smart Scheduling System**: Automated, conflict-free class schedule generation with grade-specific time constraints and standardized recess periods.
+
 **Teacher Dashboard**: Tools for teachers to apply for subject/advisory roles (with strict overlap validation) and view their assigned sections, student rosters, and schedules.
+
 **Student Enrollment & Finance**: Online enrollment tracking, tuition fee management, and an intelligent **OCR Payment Scanner** for automated receipt verification via Reference IDs.
+
 **AI Assistance**: Built-in AI tools powered by Google Gemini and Anthropic Claude specifically designed to assist teachers.
+
 **Administrator Portal**: Comprehensive dashboard to manage school years, subjects, approve enrollments, track financial collections, and manage user accounts.
+
 **Support Ticketing System**: Integrated concern ticketing for students and teachers to seamlessly communicate with the administration.
 
 STEPS FOR INSTALLATION
