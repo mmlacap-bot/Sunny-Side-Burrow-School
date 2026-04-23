@@ -1,0 +1,11 @@
+{% extends 'base_student.html' %}
+{% load static %}
+
+{% block title %}About - Sunny Side Burrow School{% endblock %}
+
+{% block content %}
+{% include 'about_sections.html' %}
+<div class="card">
+    <a href="{% url 'student_dashboard' %}" class="btn">Back to Dashboard</a>
+</div>
+{% endblock %}

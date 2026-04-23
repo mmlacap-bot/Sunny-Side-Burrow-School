@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Portal - Sunny Side Burrow School{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background: #F5ECD7; color: #333; }
+        .sidebar { width: 250px; background: #CC0000; color: white; height: 100vh; position: fixed; padding: 1rem; }
+        .sidebar h2 { margin-bottom: 1rem; }
+        .sidebar a { color: white; text-decoration: none; display: block; padding: 0.5rem; margin: 0.5rem 0; border-radius: 4px; }
+        .sidebar a:hover { background: #AA0000; }
+        .main-content { margin-left: 250px; padding: 2rem; }
+        .top-bar { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .btn { background: #CC0000; color: white; border: none; padding: 0.5rem 1rem; cursor: pointer; border-radius: 4px; text-decoration: none; display: inline-block; }
+        .btn:hover { background: #AA0000; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: white; }
+        table th, table td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+        table th { background: #CC0000; color: white; cursor: pointer; }
+        table th:hover { background: #AA0000; }
+        .card { background: white; border-radius: 8px; padding: 1rem; margin: 1rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .stat-card { display: inline-block; width: 200px; margin: 1rem; text-align: center; }
+        .stat-card h3 { font-size: 2rem; color: #CC0000; }
+        .status { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+        .status.Pending { background: #FFC107; color: #000; }
+        .status.Partial { background: #FF9800; color: white; }
+        .status.Enrolled { background: #28A745; color: white; }
+        .status.Dropped { background: #DC3545; color: white; }
+        .status.Open { background: #FFC107; color: #000; }
+        .status.Resolved { background: #28A745; color: white; }
+        .status.Paid { background: #28A745; color: white; }
+        .status.Unpaid { background: #6c757d; color: white; }
+        .profile-container { position: relative; display: inline-block; float: right; }
+        .profile-btn { background: none; border: none; width: 35px; height: 35px; cursor: pointer; font-size: 1.2rem; color: #333; border-radius: 50%; transition: background 0.3s; display: flex; align-items: center; justify-content: center; padding: 0; }
+        .profile-btn:hover { background: #f0f0f0; }
+        .profile-dropdown { display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.15); border-radius: 4px; z-index: 1000; margin-top: 0.5rem; border: 1px solid #ddd; }
+        .profile-container:hover .profile-dropdown { display: block; }
+        .profile-dropdown a { color: #333; text-decoration: none; display: block; padding: 0.75rem 1rem; border: none; width: 100%; text-align: left; background: none; cursor: pointer; transition: background 0.3s; }
+        .profile-dropdown a:first-child { border-top-left-radius: 4px; border-top-right-radius: 4px; }
+        .profile-dropdown a:last-child { border-bottom-left-radius: 4px; border-bottom-right-radius: 4px; }
+        .profile-dropdown a:hover { background: #f5f5f5; }
+        .profile-dropdown .about-btn { color: #CC0000; font-weight: 600; }
+        .profile-dropdown .about-btn:hover { background: #ffe0e0; }
+        .profile-dropdown .logout-btn { color: #DC3545; font-weight: 600; }
+        .profile-dropdown .logout-btn:hover { background: #ffe0e0; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Admin Portal</h2>
+        <a href="{% url 'admin_portal_dashboard' %}">Dashboard</a>
+        <a href="{% url 'admin_portal_students' %}">Students</a>
+        <a href="{% url 'admin_portal_enrollment' %}">Enrollments</a>
+        <a href="{% url 'admin_portal_sections' %}">Sections</a>
+        <a href="{% url 'admin_portal_subjects' %}">Subjects</a>
+        <a href="{% url 'admin_portal_schedule' %}">Schedule</a>
+        <a href="{% url 'admin_portal_payment' %}">Payments</a>
+        <a href="{% url 'admin_portal_concerns' %}">Concerns</a>
+        <a href="{% url 'admin_portal_school_year' %}">School Year</a>
+        <a href="{% url 'about' %}">About</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+    <div class="main-content">
+        <div class="top-bar">
+            <h1>SUNNY SIDE BURROW SCHOOL - Admin Portal</h1>
+            <div class="profile-container">
+                <button class="profile-btn" title="{{ user.get_full_name }}">👤</button>
+                <div class="profile-dropdown">
+                    <a href="{% url 'about' %}" class="about-btn">About</a>
+                    <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

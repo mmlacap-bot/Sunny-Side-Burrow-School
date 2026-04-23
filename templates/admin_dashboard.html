@@ -1,0 +1,37 @@
+{% extends 'base_admin.html' %}
+{% block title %}Admin Dashboard - Sunny Side Burrow School{% endblock %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<div class="stat-card">
+    <h3>{{ total_students }}</h3>
+    <p>Total Students</p>
+</div>
+<div class="stat-card">
+    <h3>{{ enrolled }}</h3>
+    <p>Enrolled</p>
+</div>
+<div class="stat-card">
+    <h3>₱{{ total_collected }}</h3>
+    <p>Total Collected</p>
+</div>
+<div class="stat-card">
+    <h3>₱{{ total_balance }}</h3>
+    <p>Remaining Balance</p>
+</div>
+<div class="stat-card">
+    <h3>₱{{ total_tuition }}</h3>
+    <p>Expected Total</p>
+</div>
+<div class="stat-card">
+    <h3>{{ pending }}</h3>
+    <p>Pending Enrollments</p>
+</div>
+<div class="card">
+    <h3>Enrollment by Grade</h3>
+    <ul>
+        {% for grade in by_grade %}
+        <li>{{ grade.grade_level__name }}: {{ grade.count }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

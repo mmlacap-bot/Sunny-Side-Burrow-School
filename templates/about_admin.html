@@ -1,0 +1,10 @@
+{% extends 'base_admin.html' %}
+
+{% block title %}About - Sunny Side Burrow School{% endblock %}
+
+{% block content %}
+{% include 'about_sections.html' %}
+<div class="card">
+    <a href="{% url 'admin_portal_dashboard' %}" class="btn">Back to Admin Dashboard</a>
+</div>
+{% endblock %}
