@@ -1,0 +1,178 @@
+{% extends 'base_admin.html' %}
+{% load static %}
+
+{% block title %}Update Enrollment Status - Sunny Side Burrow School{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Update Enrollment Status</h2>
+    
+    <div class="enrollment-info">
+        <h3>Enrollment Information</h3>
+        <table class="info-table">
+            <tr>
+                <td><strong>Student:</strong></td>
+                <td>{{ enrollment.student.full_name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Grade Level:</strong></td>
+                <td>{{ enrollment.grade_level.name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Section:</strong></td>
+                <td>{{ enrollment.section.name }}</td>
+            </tr>
+            <tr>
+                <td><strong>School Year:</strong></td>
+                <td>{{ enrollment.school_year.year_start }}-{{ enrollment.school_year.year_end }}</td>
+            </tr>
+            <tr>
+                <td><strong>Tuition Fee:</strong></td>
+                <td>₱{{ enrollment.tuition_fee }}</td>
+            </tr>
+            <tr>
+                <td><strong>Current Status:</strong></td>
+                <td><span class="badge badge-{{ enrollment.status|lower }}">{{ enrollment.status }}</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="form-container">
+        <h3>Update Status</h3>
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="status">New Status:</label>
+                <select id="status" name="status" required>
+                    <option value="">-- Select Status --</option>
+                    {% for status_key, status_label in status_choices.items %}
+                    <option value="{{ status_key }}" {% if enrollment.status == status_key %}selected{% endif %}>{{ status_label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Update Status</button>
+                <a href="{% url 'admin_portal_enrollment' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .enrollment-info {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+
+    .enrollment-info h3 {
+        margin-top: 0;
+    }
+
+    .info-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .info-table tr {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-table td {
+        padding: 10px;
+    }
+
+    .info-table td:first-child {
+        width: 30%;
+        background: #f8f9fa;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+
+    .badge-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-enrolled {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .badge-dropped {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-transferred {
+        background: #cfe2ff;
+        color: #084298;
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+    }
+
+    .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #666;
+        color: white;
+    }
+</style>
+{% endblock %}

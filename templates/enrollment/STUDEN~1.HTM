@@ -1,0 +1,211 @@
+{% extends 'base_student.html' %}
+{% load static %}
+{% block title %}Student Enrollment - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Student Enrollment{% endblock %}
+{% block page_subtitle %}Enroll for the upcoming school year.{% endblock %}
+
+{% block content %}
+{% if enrollment %}
+<section class="card">
+    <div class="card-title">
+        <h3>Enrollment Status: <span class="status-pill {{ enrollment.status|lower }}">{{ enrollment.status }}</span></h3>
+    </div>
+    <p style="margin-bottom: 1.5rem; color: #555;">
+        You are enrolled for <strong>{{ enrollment.school_year }}</strong> in <strong>{{ enrollment.grade_level }}</strong> - section <strong>{{ enrollment.section }}</strong>.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; background: #F9F9F9; padding: 1.5rem; border-radius: 12px; border: 1px solid #EEE;">
+        <div>
+            <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Tuition Fee</div>
+            <div style="font-size: 1.25rem; font-weight: 700; color: #CC0000;">₱{{ enrollment.tuition_fee }}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Total Paid</div>
+            <div style="font-size: 1.25rem; font-weight: 700; color: #14773B;">₱{{ enrollment.total_paid }}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.3rem;">Current Balance</div>
+            <div style="font-size: 1.25rem; font-weight: 700; color: #E65100;">₱{{ enrollment.balance }}</div>
+        </div>
+    </div>
+
+    {% if enrolled_subjects %}
+    <div class="table-card" style="margin-bottom: 1.5rem;">
+        <h4>Assigned Subjects</h4>
+        <table>
+            <thead><tr><th>Subject</th><th>Day</th><th>Time</th><th>Room</th></tr></thead>
+            <tbody>
+                {% for es in enrolled_subjects %}
+                <tr>
+                    <td>{{ es.class_schedule.subject.name }}</td>
+                    <td>{{ es.class_schedule.get_day_display }}</td>
+                    <td>{{ es.class_schedule.time_start }} - {{ es.class_schedule.time_end }}</td>
+                    <td>{{ es.class_schedule.room }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="info-empty" style="margin-bottom: 1.5rem;">No subjects assigned yet. Please check back later or contact the registrar.</div>
+    {% endif %}
+    
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="{% url 'student_dashboard' %}" class="small-btn">Back to Dashboard</a>
+        
+        {% if enrollment.status == 'Pending' %}
+        <form action="{% url 'cancel_enrollment' enrollment.id %}" method="POST" style="display: inline;" 
+              onsubmit="return confirm('Are you sure you want to cancel your enrollment? This will permanently delete your enrollment record. This action cannot be undone.');">
+            {% csrf_token %}
+            <button type="submit" class="small-btn" style="background-color: #f44336; border-color: #f44336; color: white;">
+                Cancel Enrollment
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</section>
+{% else %}
+    {% if step == 1 %}
+    <section class="card">
+        <h3>Step 1: Review and Edit Your Information</h3>
+        <p style="color:#555; margin-bottom:1.5rem;">Please review your profile details before proceeding.</p>
+        
+        {% if profile_form.non_field_errors %}
+        <div style="color: #b00020; margin-bottom: 1rem; padding: 0.75rem; background: #fce4e4; border-radius: 8px;">{{ profile_form.non_field_errors }}</div>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="step" value="1">
+            <div style="margin-bottom: 1.5rem; padding: 1rem; background: #FAFAFA; border-radius: 8px; border: 1px solid #eee;">
+                <strong>Student ID:</strong> {{ student.student_id }}
+            </div>
+            
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1.2rem; margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    {{ profile_form.first_name.label_tag }}
+                    {{ profile_form.first_name }}
+                    {% if profile_form.first_name.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ profile_form.first_name.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ profile_form.middle_name.label_tag }}
+                    {{ profile_form.middle_name }}
+                    {% if profile_form.middle_name.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ profile_form.middle_name.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ profile_form.last_name.label_tag }}
+                    {{ profile_form.last_name }}
+                    {% if profile_form.last_name.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ profile_form.last_name.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ profile_form.birthdate.label_tag }}
+                    {{ profile_form.birthdate }}
+                    {% if profile_form.birthdate.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ profile_form.birthdate.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ profile_form.gender.label_tag }}
+                    {{ profile_form.gender }}
+                    {% if profile_form.gender.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ profile_form.gender.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ profile_form.contact_number.label_tag }}
+                    {{ profile_form.contact_number }}
+                    {% if profile_form.contact_number.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ profile_form.contact_number.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    {{ profile_form.address.label_tag }}
+                    {{ profile_form.address }}
+                    {% if profile_form.address.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ profile_form.address.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ profile_form.guardian_name.label_tag }}
+                    {{ profile_form.guardian_name }}
+                    {% if profile_form.guardian_name.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ profile_form.guardian_name.errors }}</span>{% endif %}
+                </div>
+                <div class="form-group">
+                    {{ profile_form.guardian_contact.label_tag }}
+                    {{ profile_form.guardian_contact }}
+                    {% if profile_form.guardian_contact.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ profile_form.guardian_contact.errors }}</span>{% endif %}
+                </div>
+            </div>
+            <button type="submit" class="btn-form">Confirm and Proceed</button>
+        </form>
+    </section>
+    {% elif step == 2 %}
+    <section class="card">
+        <h3>Step 2: Select Grade Level and Section</h3>
+        <p style="color:#555; margin-bottom:1rem;">Standard Tuition Fee for this Grade: <strong>₱10,000.00</strong></p>
+        
+        {% if form.non_field_errors %}
+        <div style="color: #b00020; margin-bottom: 1rem; padding: 0.75rem; background: #fce4e4; border-radius: 8px;">{{ form.non_field_errors }}</div>
+        {% endif %}
+        
+        <form method="post" id="enrollment-form">
+            {% csrf_token %}
+            <input type="hidden" name="step" value="2">
+            <input type="hidden" name="action" value="confirm">
+            
+            <div style="display:grid; gap: 1.5rem; margin-bottom: 1.5rem;">
+                {% for field in form %}
+                <div class="form-group">
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.errors %}<span style="color: #b00020; font-size: 0.8rem;">{{ field.errors }}</span>{% endif %}
+                    {% if field.help_text %}<small style="display:block;color:#666; margin-top: 0.3rem;">{{ field.help_text }}</small>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn-form">Submit Enrollment</button>
+        </form>
+        
+        <!-- Schedule Preview Container -->
+        <div id="schedule-preview" style="margin-top: 2rem; display: none; background-color: #FAFAFA; border: 1px solid #EEE; border-radius: 8px; padding: 1.5rem;"></div>
+        
+        {% if subject_rows %}
+        <div style="margin-top: 2rem;" class="table-card">
+            <h4>Subjects for {{ grade_level.name }}</h4>
+            <div style="overflow-x: auto; margin-top: 1rem;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Day</th>
+                            <th>Time</th>
+                            <th>Room</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in subject_rows %}
+                        <tr>
+                            <td>{{ row.subject.name }}</td>
+                            <td>{{ row.day }}</td>
+                            <td>{{ row.time }}</td>
+                            <td>{{ row.room }}</td>
+                            <td>
+                                <span class="status-pill {% if row.availability == 'Okay to Enroll' %}resolved{% else %}dropped{% endif %}">
+                                    {{ row.availability }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                <strong>Total Subjects:</strong> {{ subject_rows|length }}
+            </p>
+        </div>
+        {% endif %}
+    </section>
+    {% elif step == 3 %}
+    <section class="card action-panel">
+        <h3>Step 3: Assigned Subjects</h3>
+        <p>Your enrollment has been submitted. You will be assigned subjects based on your grade level and section automatically once processed.</p>
+        <a href="{% url 'student_dashboard' %}" class="small-btn">Go to Dashboard</a>
+    </section>
+    {% endif %}
+{% endif %}
+<script src="{% static 'js/enrollment.js' %}"></script>
+{% endblock %}

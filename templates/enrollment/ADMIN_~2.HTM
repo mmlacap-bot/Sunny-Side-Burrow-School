@@ -1,0 +1,42 @@
+{% extends 'base_admin.html' %}
+{% block title %}Enrollments - Admin Portal{% endblock %}
+{% block content %}
+<h2>Enrollments</h2>
+<form method="get">
+    <select name="school_year">
+        <option value="">All School Years</option>
+        <!-- Add options -->
+    </select>
+    <select name="grade">
+        <option value="">All Grades</option>
+        <!-- Add options -->
+    </select>
+    <button type="submit" class="btn">Filter</button>
+</form>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Grade</th>
+                <th>Section</th>
+                <th>Tuition</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for enrollment in page_obj %}
+            <tr>
+                <td>{{ enrollment.student.first_name }} {{ enrollment.student.last_name }}</td>
+                <td>{{ enrollment.grade_level.name }}</td>
+                <td>{{ enrollment.section.name }}</td>
+                <td>₱{{ enrollment.tuition_fee }}</td>
+                <td><span class="status {{ enrollment.status }}">{{ enrollment.status }}</span></td>
+                <td><a href="#" class="btn">Approve</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
