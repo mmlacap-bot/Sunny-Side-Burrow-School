@@ -1,0 +1,38 @@
+{% extends 'base_teacher.html' %}
+{% block title %}Teacher Concerns - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Student Concerns{% endblock %}
+{% block page_subtitle %}Manage student concerns and respond quickly from this page.{% endblock %}
+{% block content %}
+<section class="card table-card">
+    <div class="card-title">
+        <h3>Student Concerns</h3>
+        <a href="{% url 'teacher_dashboard' %}" class="small-btn">Back to Dashboard</a>
+    </div>
+    {% if concerns %}
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Filed Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for concern in concerns %}
+            <tr>
+                <td>{{ concern.student.full_name }}</td>
+                <td>{{ concern.subject_text }}</td>
+                <td>{{ concern.status|capfirst }}</td>
+                <td>{{ concern.date_filed|date:"M d, Y H:i" }}</td>
+                <td><a href="{% url 'teacher_respond_concern' concern.id %}" class="small-btn">Respond</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="info-empty">There are no active student concerns for your classes right now.</div>
+    {% endif %}
+</section>
+{% endblock %}

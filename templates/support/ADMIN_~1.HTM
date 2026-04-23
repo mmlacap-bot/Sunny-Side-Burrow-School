@@ -1,0 +1,29 @@
+{% extends 'base_admin.html' %}
+{% block title %}Concerns - Admin Portal{% endblock %}
+{% block content %}
+<h2>Student Concerns</h2>
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for concern in concerns %}
+            <tr>
+                <td>{{ concern.student.first_name }} {{ concern.student.last_name }}</td>
+                <td>{{ concern.subject_text }}</td>
+                <td><span class="status {{ concern.status }}">{{ concern.status }}</span></td>
+                <td>{{ concern.date_filed }}</td>
+                <td><a href="#" class="btn">Respond</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

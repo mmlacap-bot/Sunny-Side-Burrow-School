@@ -1,0 +1,78 @@
+{% extends 'base_student.html' %}
+{% block title %}Student Concern - Sunny Side Burrow School{% endblock %}
+{% block page_title %}File a Concern{% endblock %}
+{% block page_subtitle %}Submit academic or administrative concerns to the staff.{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid" style="grid-template-columns: 1fr 1.5fr;">
+    <section class="card">
+        <div class="card-title">
+            <h3>New Concern</h3>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.subject_text.id_for_label }}">Subject</label>
+                {{ form.subject_text }}
+                {% if form.subject_text.errors %}
+                    <div style="color: #b00020; font-size: 0.85rem; margin-top: 0.2rem;">{{ form.subject_text.errors|join:', ' }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div style="color: #b00020; font-size: 0.85rem; margin-top: 0.2rem;">{{ form.description.errors|join:', ' }}</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-form" style="width: 100%;">Submit Concern</button>
+        </form>
+    </section>
+
+    <section class="card table-card">
+        <div class="card-title">
+            <h3>Your Concerns</h3>
+        </div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Description</th>
+                        <th>Date Filed</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for concern in concerns %}
+                    <tr>
+                        <td><strong>{{ concern.subject_text }}</strong></td>
+                        <td style="max-width: 200px;">
+                            <div style="font-size: 0.9rem; line-height: 1.4; color: #444; margin-bottom: 0.5rem; word-wrap: break-word;">
+                                {{ concern.description }}
+                            </div>
+                            {% if concern.response %}
+                            <div style="background: #F9F9F9; padding: 0.75rem; border-radius: 8px; border-left: 3px solid #14773B; font-size: 0.85rem;">
+                                <strong>Response:</strong><br/>
+                                {{ concern.response }}
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td style="white-space: nowrap;">{{ concern.date_filed|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="status-pill {{ concern.status|lower }}">{{ concern.status }}</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="info-empty" style="text-align: center;">No concerns filed yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

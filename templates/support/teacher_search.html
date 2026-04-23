@@ -1,0 +1,31 @@
+{% extends 'base_teacher.html' %}
+
+{% block title %}Search - Inbox{% endblock %}
+{% block page_title %}Search{% endblock %}
+{% block page_subtitle %}Start a conversation.{% endblock %}
+
+{% block content %}
+<section class="card">
+    <div class="card-title">
+        <h3>Results for “{{ query }}”</h3>
+        <a href="{% url 'teacher_inbox' %}" class="small-btn">Back to Inbox</a>
+    </div>
+    {% if results %}
+        <div style="display:grid; gap:0.6rem;">
+            {% for u in results %}
+                <form method="post" action="{% url 'start_conversation' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="receiver_id" value="{{ u.id }}" />
+                    <button type="submit" class="small-btn" style="width:100%; justify-content:space-between;">
+                        <span><strong>{{ u.get_full_name }}</strong> <span style="color:#666;">({{ u.username }})</span></span>
+                        <span>Message</span>
+                    </button>
+                </form>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="info-empty">No matches found.</div>
+    {% endif %}
+</section>
+{% endblock %}
+

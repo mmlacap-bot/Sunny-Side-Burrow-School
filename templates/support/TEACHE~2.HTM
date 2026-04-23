@@ -1,0 +1,329 @@
+{% extends 'base_teacher.html' %}
+
+{% block title %}Teacher Applications - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Subject and Advisory Applications{% endblock %}
+{% block page_subtitle %}Apply for available subject schedules and advisory sections for the active school year.{% endblock %}
+
+{% block content %}
+<style>
+    .checklist-container { background: transparent; border: none; padding: 0; box-shadow: none; }
+    .checklist-header { background: #CC0000; color: #fff; text-align: center; padding: 0.8rem; font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 12px 12px 0 0; margin-bottom: 1rem; }
+    .checklist-row { display: grid; grid-template-columns: 45px 1fr; gap: 0.5rem; margin-bottom: 0.8rem; }
+    .grade-sidebar { background: #FAF0EE; border: 1px solid rgba(204,0,0,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0.3rem; }
+    .grade-sidebar span { writing-mode: vertical-rl; transform: rotate(180deg); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; color: #CC0000; }
+    .subjects-box { background: #fff; border: 1px solid rgba(0,0,0,0.06); border-radius: 8px; padding: 0.6rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.6rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+    .subject-item { display: flex; align-items: center; gap: 0.8rem; cursor: pointer; padding: 0.4rem 0.6rem; border-radius: 6px; transition: background 0.2s; border: 1px solid transparent; }
+    .subject-item:hover { background: #FAF0EE; border-color: rgba(204,0,0,0.1); }
+    .subject-item input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; background: #fff; border: 2px solid #CC0000; border-radius: 4px; cursor: pointer; position: relative; flex-shrink: 0; transition: all 0.2s; }
+    .subject-item input[type="checkbox"]:checked { background: #CC0000; }
+    .subject-item input[type="checkbox"]:checked::after { content: '✓'; position: absolute; color: white; font-size: 12px; left: 50%; top: 50%; transform: translate(-50%, -50%); font-weight: bold; }
+    .subject-item span { font-weight: 600; font-size: 0.85rem; color: #333; }
+    .subject-item .time-label { color: #777; font-size: 0.75rem; font-weight: 400; margin-left: auto; white-space: nowrap; }
+    .form-group { margin-bottom: 1rem; }
+    input[type="text"], textarea, select { width: 100%; padding: 0.7rem; border: 1px solid rgba(0,0,0,0.1); border-radius: 10px; font-family: inherit; font-size: 0.9rem; outline: none; transition: border-color 0.2s; }
+    input[type="text"]:focus, textarea:focus, select:focus { border-color: #CC0000; }
+</style>
+
+{% if has_subject_assignment and has_advisory_assignment %}
+<section class="card" style="background: #fff; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.05); margin-bottom: 2rem; padding: 3rem; text-align: center;">
+    <div style="font-size: 3rem; color: #CC0000; margin-bottom: 1.5rem;">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <h2 style="color: #333; margin-bottom: 1rem;">Workload Fully Assigned</h2>
+    <p style="color: #666; max-width: 500px; margin: 0 auto 2rem;">
+        You have been assigned to both a subject and an advisory section for this school year. Thank you for your commitment to our students!
+    </p>
+    <a href="{% url 'teacher_dashboard' %}" class="btn" style="width: auto; padding: 0.8rem 2.5rem; background: #333; border: none; color: #fff; border-radius: 999px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem;">
+        Return to Dashboard
+    </a>
+</section>
+{% else %}
+    {% if not has_subject_assignment %}
+    <section class="card" style="background: #fff; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.05); margin-bottom: 1.5rem;">
+        <div class="checklist-header">
+            Subject Assignment Application
+        </div>
+        
+        <form method="post" id="subject-form">
+            {% csrf_token %}
+            <input type="hidden" name="application_type" value="SUBJECT">
+
+            <div class="form-group" style="padding: 1rem;">
+                <div style="margin-bottom: 1rem; background: #FAF0EE; padding: 0.8rem; border-radius: 8px; border: 1px solid rgba(204,0,0,0.1);">
+                    <div style="font-weight: 700; color: #CC0000; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center;">
+                        <span>REQUIREMENT: SELECT EXACTLY 8 UNIQUE SUBJECTS</span>
+                        <span id="subject-counter">0 / 8 selected</span>
+                    </div>
+                    <div id="subject-status-msg" style="font-size: 0.75rem; color: #666; margin-top: 0.3rem;">
+                        Please select 8 different subjects to enable submission.
+                    </div>
+                </div>
+
+                <div class="checklist-container">
+                    {% regroup form.class_schedules.field.queryset by section.grade_level as grade_list %}
+                    {% for grade in grade_list %}
+                        <div class="checklist-row">
+                            <div class="grade-sidebar">
+                                <span>{{ grade.grouper.name }}</span>
+                            </div>
+                            <div class="subjects-box">
+                                {% for schedule in grade.list %}
+                                    <label class="subject-item">
+                                        <input type="checkbox" name="class_schedules" value="{{ schedule.id }}" 
+                                               data-name="{{ schedule.subject.name }}"
+                                               data-day="{{ schedule.day }}" data-start="{{ schedule.time_start|time:'H:i' }}" data-end="{{ schedule.time_end|time:'H:i' }}"
+                                               {% if schedule.id|stringformat:"s" in form.class_schedules.value %}checked{% endif %}>
+                                        <span>{{ schedule.subject.name }} ({{ schedule.section.name }})</span>
+                                        <span class="time-label">{{ schedule.day }} {{ schedule.time_start|time:"H:i" }}-{{ schedule.time_end|time:"H:i" }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="info-empty">No available subject schedules for application.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group" style="padding: 0 1rem 1rem;">
+                <div class="subjects-box" style="display: block; padding: 0.8rem;">
+                    <div style="margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; color: #CC0000; font-size: 0.8rem;">
+                        Notes (Optional)
+                    </div>
+                    {{ form.notes }}
+                </div>
+            </div>
+
+            <div style="text-align: center; padding-bottom: 1.5rem;">
+                <button type="submit" id="subject-submit-btn" class="btn" disabled style="width: auto; padding: 0.8rem 2.5rem; background: #CC0000; border: none; color: #fff; border-radius: 999px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem; box-shadow: 0 6px 16px rgba(204,0,0,0.15); opacity: 0.5; cursor: not-allowed;">
+                    Submit Subject Application
+                </button>
+            </div>
+        </form>
+    </section>
+    {% else %}
+    <div class="card" style="background: #F8FFF9; border: 1px solid #C8E6C9; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+        <span style="color: #14773B; font-weight: 700;"><i class="fas fa-check-circle"></i> Subject Assignment Completed</span>
+    </div>
+    {% endif %}
+
+    {% if not has_advisory_assignment %}
+    <section class="card" style="background: #fff; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.05); margin-bottom: 1.5rem;">
+        <div class="checklist-header" style="background: #333;">
+            Advisory Section Application
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="application_type" value="ADVISORY">
+
+            <div class="form-group" style="padding: 1rem;">
+                <div class="subjects-box" style="display: block; padding: 0.8rem;">
+                    <div style="margin-bottom: 0.6rem; font-weight: 700; text-transform: uppercase; color: #CC0000; font-size: 0.8rem;">
+                        Select Advisory Section
+                    </div>
+                    {{ form.section }}
+                    <div id="section-warning" style="display: none; color: #CC0000; font-size: 0.8rem; margin-top: 0.4rem; font-weight: 600;">
+                        <i class="fas fa-exclamation-circle"></i> Already assigned or pending.
+                    </div>
+                    {% if form.section.errors %}<div style="color: #CC0000; font-size: 0.8rem; margin-top: 0.2rem;">{{ form.section.errors }}</div>{% endif %}
+                </div>
+            </div>
+
+            <div class="form-group" style="padding: 0 1rem 1rem;">
+                <div class="subjects-box" style="display: block; padding: 0.8rem;">
+                    <div style="margin-bottom: 0.5rem; font-weight: 700; text-transform: uppercase; color: #CC0000; font-size: 0.8rem;">
+                        Notes (Optional)
+                    </div>
+                    {{ form.notes }}
+                </div>
+            </div>
+
+            <div style="text-align: center; padding-bottom: 1.5rem;">
+                <button type="submit" id="advisory-submit-btn" class="btn" style="width: auto; padding: 0.8rem 2.5rem; background: #333; border: none; color: #fff; border-radius: 999px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem; box-shadow: 0 6px 16px rgba(0,0,0,0.15);">
+                    Submit Advisory Application
+                </button>
+            </div>
+        </form>
+    </section>
+    {% else %}
+    <div class="card" style="background: #F8FFF9; border: 1px solid #C8E6C9; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+        <span style="color: #14773B; font-weight: 700;"><i class="fas fa-check-circle"></i> Advisory Assignment Completed</span>
+    </div>
+    {% endif %}
+{% endif %}
+
+<script>
+    const occupiedSections = {{ occupied_sections_ids|safe }};
+    
+    function updateSubjectUI() {
+        const checkboxes = document.querySelectorAll('input[name="class_schedules"]');
+        const submitBtn = document.getElementById('subject-submit-btn');
+        const counter = document.getElementById('subject-counter');
+        const statusMsg = document.getElementById('subject-status-msg');
+        
+        if (!submitBtn) return;
+
+        const checkedBoxes = Array.from(checkboxes).filter(cb => cb.checked);
+        const count = checkedBoxes.length;
+        
+        // Check for time conflicts
+        let hasConflicts = false;
+        const selectedSchedules = checkedBoxes.map(cb => ({
+            id: cb.value,
+            day: cb.getAttribute('data-day'),
+            start: cb.getAttribute('data-start'),
+            end: cb.getAttribute('data-end')
+        }));
+
+        for (let i = 0; i < selectedSchedules.length; i++) {
+            for (let j = i + 1; j < selectedSchedules.length; j++) {
+                const s1 = selectedSchedules[i];
+                const s2 = selectedSchedules[j];
+                // Simple overlap check: same day, and time overlaps
+                if (s1.day === s2.day || s1.day === 'Dly' || s2.day === 'Dly') {
+                    // Check if time overlaps (start1 < end2 && start2 < end1)
+                    if (s1.start < s2.end && s2.start < s1.end) {
+                        hasConflicts = true;
+                        break;
+                    }
+                }
+            }
+            if (hasConflicts) break;
+        }
+
+        counter.innerText = `${count} / 8 selected`;
+        
+        if (hasConflicts) {
+            statusMsg.innerText = "Error: You have selected subjects with conflicting schedules.";
+            statusMsg.style.color = "#CC0000";
+            statusMsg.style.fontWeight = "700";
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        } else if (count !== 8) {
+            statusMsg.innerText = count < 8 ? `Please select ${8 - count} more subjects.` : `Please remove ${count - 8} subjects. Exactly 8 required.`;
+            statusMsg.style.color = "#666";
+            statusMsg.style.fontWeight = "400";
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        } else {
+            statusMsg.innerText = "Requirements met. You can now submit your application.";
+            statusMsg.style.color = "#14773B";
+            statusMsg.style.fontWeight = "700";
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+        }
+
+        // Visual feedback for conflicts
+        checkboxes.forEach(cb => {
+            const itemLabel = cb.closest('.subject-item');
+            
+            // Re-check conflict just for this cb to highlight it
+            let inConflict = false;
+            if (cb.checked) {
+                const s1 = {
+                    day: cb.getAttribute('data-day'),
+                    start: cb.getAttribute('data-start'),
+                    end: cb.getAttribute('data-end')
+                };
+                for (let j = 0; j < selectedSchedules.length; j++) {
+                    const s2 = selectedSchedules[j];
+                    if (cb.value !== s2.id) {
+                        if (s1.day === s2.day || s1.day === 'Dly' || s2.day === 'Dly') {
+                            if (s1.start < s2.end && s2.start < s1.end) {
+                                inConflict = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (inConflict) {
+                itemLabel.style.background = "#FFEBEE";
+                itemLabel.style.borderColor = "#FFCDD2";
+            } else {
+                itemLabel.style.background = cb.checked ? "#F1F8E9" : "";
+                itemLabel.style.borderColor = cb.checked ? "#DCEDC8" : "transparent";
+            }
+        });
+    }
+
+    function checkSectionAvailability() {
+        const sectionSelect = document.querySelector('select[name="section"]');
+        const submitBtn = document.getElementById('advisory-submit-btn');
+        const warningMsg = document.getElementById('section-warning');
+        
+        if (!sectionSelect || !submitBtn) return;
+        
+        const selectedId = parseInt(sectionSelect.value);
+        
+        if (occupiedSections.includes(selectedId)) {
+            warningMsg.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+            sectionSelect.style.borderColor = '#CC0000';
+        } else {
+            warningMsg.style.display = 'none';
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '1';
+            submitBtn.style.cursor = 'pointer';
+            sectionSelect.style.borderColor = 'rgba(0,0,0,0.1)';
+        }
+    }
+
+    window.onload = function() {
+        // Initial Subject check
+        const checkboxes = document.querySelectorAll('input[name="class_schedules"]');
+        checkboxes.forEach(cb => cb.addEventListener('change', updateSubjectUI));
+        updateSubjectUI();
+
+        // Initial Advisory check
+        const sectionSelect = document.querySelector('select[name="section"]');
+        if (sectionSelect) {
+            sectionSelect.addEventListener('change', checkSectionAvailability);
+            checkSectionAvailability();
+        }
+    };
+</script>
+
+<section class="card table-card">
+    <div class="card-title">
+        <h3>My Applications</h3>
+    </div>
+    {% if applications %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Target</th>
+                    <th>Status</th>
+                    <th>Submitted</th>
+                    <th>Review Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                    <tr>
+                        <td>{{ application.get_application_type_display }}</td>
+                        <td>{{ application.target_label }}</td>
+                        <td>
+                            <span class="status-pill {{ application.status|lower }}">
+                                {{ application.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ application.created_at|date:"M d, Y" }}</td>
+                        <td>{{ application.review_notes|default:"-" }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="info-empty">No applications yet.</div>
+    {% endif %}
+</section>
+{% endblock %}

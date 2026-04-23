@@ -1,0 +1,444 @@
+{% extends 'base_teacher.html' %}
+{% load static %}
+
+{% block title %}Inbox - Sunny Side Burrow School{% endblock %}
+{% block page_title %}Inbox{% endblock %}
+{% block page_subtitle %}Manage your communications with students and faculty.{% endblock %}
+
+{% block content %}
+<style>
+    .messenger-container {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        overflow: hidden;
+        height: calc(100vh - 280px);
+        min-height: 600px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    /* Sidebar Styles */
+    .messenger-sidebar {
+        border-right: 1px solid #eee;
+        display: flex;
+        flex-direction: column;
+        background: #fcfcfc;
+    }
+
+    .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 2.5rem;
+        border-radius: 12px;
+        border: 1px solid #eee;
+        background: #f5f5f5;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        background: #fff;
+        border-color: #CC0000;
+        box-shadow: 0 0 0 3px rgba(204,0,0,0.1);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #888;
+    }
+
+    .thread-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .thread-item {
+        display: flex;
+        align-items: center;
+        padding: 1.2rem 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-bottom: 1px solid #f5f5f5;
+        position: relative;
+    }
+
+    .thread-item:hover {
+        background: #f9f9f9;
+    }
+
+    .thread-item.active {
+        background: #f0f7ff;
+        border-left: 4px solid #CC0000;
+    }
+
+    .avatar-wrapper {
+        position: relative;
+        margin-right: 1rem;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #eee;
+    }
+
+    .thread-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .thread-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+        margin-bottom: 0.2rem;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .thread-time {
+        font-size: 0.75rem;
+        color: #999;
+        font-weight: 400;
+    }
+
+    .thread-preview {
+        font-size: 0.85rem;
+        color: #666;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .unread-badge {
+        background: #CC0000;
+        color: #fff;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 10px;
+        font-weight: 700;
+        margin-left: 0.5rem;
+    }
+
+    /* Main Chat Styles */
+    .messenger-main {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+
+    .chat-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .active-user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .chat-body {
+        flex: 1;
+        padding: 1.5rem;
+        overflow-y: auto;
+        background: #fcfcfc;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .message-bubble {
+        max-width: 70%;
+        padding: 0.9rem 1.2rem;
+        border-radius: 18px;
+        font-size: 0.92rem;
+        line-height: 1.5;
+        position: relative;
+    }
+
+    .message-sent {
+        align-self: flex-end;
+        background: #CC0000;
+        color: #fff;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-received {
+        align-self: flex-start;
+        background: #f0f0f0;
+        color: #333;
+        border-bottom-left-radius: 4px;
+    }
+
+    .message-time {
+        font-size: 0.7rem;
+        opacity: 0.7;
+        margin-top: 0.4rem;
+        display: block;
+        text-align: right;
+    }
+
+    .chat-footer {
+        padding: 1.2rem 1.5rem;
+        border-top: 1px solid #eee;
+    }
+
+    .message-form {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .message-form textarea {
+        flex: 1;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 0.8rem 1rem;
+        font-family: inherit;
+        font-size: 0.92rem;
+        resize: none;
+        background: #f9f9f9;
+        transition: all 0.2s;
+    }
+
+    .message-form textarea:focus {
+        outline: none;
+        border-color: #CC0000;
+        background: #fff;
+    }
+
+    .send-btn {
+        background: #CC0000;
+        color: #fff;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .send-btn:hover {
+        background: #9f0000;
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        text-align: center;
+        padding: 3rem;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        color: #eee;
+    }
+
+    /* Search Results */
+    #search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        z-index: 100;
+        margin-top: 0.5rem;
+        border: 1px solid #eee;
+        display: none;
+    }
+
+    .search-result-item {
+        padding: 0.8rem 1.2rem;
+        cursor: pointer;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 0.9rem;
+    }
+
+    .search-result-item:hover {
+        background: #f9f9f9;
+    }
+
+    .search-result-item:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<div class="messenger-container">
+    <!-- Sidebar -->
+    <div class="messenger-sidebar">
+        <div class="sidebar-header">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="user-search" placeholder="Search students or teachers..." autocomplete="off">
+                <div id="search-results"></div>
+            </div>
+        </div>
+        <div class="thread-list">
+            {% for t in threads %}
+            <div class="thread-item {% if active_thread and active_thread.id == t.id %}active{% endif %}" 
+                 onclick="window.location.href='{% url 'teacher_inbox_detail' t.id %}'">
+                <div class="avatar-wrapper">
+                    <img src="{% if t.other_user.teacher.photo %}{{ t.other_user.teacher.photo.url }}{% elif t.other_user.student.photo %}{{ t.other_user.student.photo.url }}{% else %}{% static 'images/default_profile.svg' %}{% endif %}" class="avatar">
+                </div>
+                <div class="thread-info">
+                    <div class="thread-name">
+                        {{ t.other_user.get_full_name }}
+                        {% if t.unread_count > 0 %}
+                        <span class="unread-badge">{{ t.unread_count }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="thread-preview">{{ t.last_message_body|default:"No messages yet" }}</div>
+                </div>
+                <div class="thread-time">{{ t.last_message_at|date:"M d" }}</div>
+            </div>
+            {% empty %}
+            <div style="padding: 2rem; text-align: center; color: #999; font-size: 0.9rem;">
+                No conversations found.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="messenger-main">
+        {% if active_thread %}
+        <div class="chat-header">
+            <div class="active-user-info">
+                <img src="{% if active_thread.other_user.teacher.photo %}{{ active_thread.other_user.teacher.photo.url }}{% elif active_thread.other_user.student.photo %}{{ active_thread.other_user.student.photo.url }}{% else %}{% static 'images/default_profile.svg' %}{% endif %}" class="avatar" style="width: 40px; height: 40px;">
+                <div>
+                    <div style="font-weight: 600;">{{ active_thread.other_user.get_full_name }}</div>
+                    <div style="font-size: 0.75rem; color: #28a745;"><i class="fas fa-circle"></i> Active Now</div>
+                </div>
+            </div>
+        </div>
+        <div class="chat-body" id="chat-body">
+            {% for msg in messages_list %}
+            <div class="message-bubble {% if msg.sender == request.user %}message-sent{% else %}message-received{% endif %}">
+                {{ msg.body }}
+                <span class="message-time">{{ msg.created_at|date:"H:i" }}</span>
+            </div>
+            {% empty %}
+            <div class="empty-state">
+                <i class="far fa-comments"></i>
+                <p>No messages yet. Send a greeting to start the conversation!</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="chat-footer">
+            <form method="POST" class="message-form">
+                {% csrf_token %}
+                <textarea name="body" placeholder="Type your message here..." rows="1" required id="message-input"></textarea>
+                <button type="submit" class="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="far fa-paper-plane"></i>
+            <h3>Select a conversation</h3>
+            <p>Choose a contact from the list or search for someone new to start chatting.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Auto-scroll to bottom of chat
+    const chatBody = document.getElementById('chat-body');
+    if (chatBody) {
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    // Handle message input expansion
+    const msgInput = document.getElementById('message-input');
+    if (msgInput) {
+        msgInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+        
+        // Submit on Enter (but not Shift+Enter)
+        msgInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.form.submit();
+            }
+        });
+    }
+
+    // User Search Logic
+    const userSearch = document.getElementById('user-search');
+    const searchResults = document.getElementById('search-results');
+
+    if (userSearch) {
+        userSearch.addEventListener('input', function() {
+            const q = this.value.trim();
+            if (q.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            fetch(`/search_users/?q=${encodeURIComponent(q)}`)
+                .then(res => res.json())
+                .then(data => {
+                    searchResults.innerHTML = '';
+                    if (data.results.length > 0) {
+                        data.results.forEach(user => {
+                            const div = document.createElement('div');
+                            div.className = 'search-result-item';
+                            div.textContent = user.name;
+                            div.onclick = () => {
+                                fetch(`/start_conversation/?user_id=${user.id}`)
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        window.location.href = data.url;
+                                    });
+                            };
+                            searchResults.appendChild(div);
+                        });
+                        searchResults.style.display = 'block';
+                    } else {
+                        searchResults.style.display = 'none';
+                    }
+                });
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userSearch.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}
