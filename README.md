@@ -28,7 +28,7 @@ python -m venv .venv
 
 6. Install Project Dependecies
 
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 
 7. Configure the Environment Variables (The project requires a `.env` file to securely store passwords and API keys)
   
